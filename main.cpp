@@ -1,4 +1,4 @@
-#include "Catcher.hpp"
+#include "catcher.hpp"
 
 using namespace std;
 
