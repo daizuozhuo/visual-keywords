@@ -1,3 +1,8 @@
+
+void foo()
+{
+}
+
 int main()
 {
 }
