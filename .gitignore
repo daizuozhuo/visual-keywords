@@ -1,2 +1,4 @@
 *.o
 *.orig
+.*.swp
+*.out

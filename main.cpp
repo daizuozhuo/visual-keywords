@@ -1,4 +1,9 @@
+#include "Catcher.hpp"
+
+using namespace std;
+
 int main()
 {
-    return 0;
+  Catcher c;
+  return 0;
 }
