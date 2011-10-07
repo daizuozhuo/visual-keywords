@@ -28,15 +28,13 @@ public class Main {
 		}
         
         Collection<Word> c = catcher.get_values();        
-        //iterate through the collection
         Word[] result =  (Word[]) c.toArray(new Word[c.size()]);
         Arrays.sort(result);
-       	for (int i = result.length - 1; i > -1; i--) result[i].print();
+       	for (int i = 0 ; i < result.length; i++) result[i].print();
         Painter painter = new Painter(result);
         try
         {
 			painter.paint();
-    		System.out.println("Paint Successful!");
 		} 
         catch (IOException e) 
         {

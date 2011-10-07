@@ -18,6 +18,7 @@ public class Word implements Comparable<Word> {
 	public String get_str() {return str;}
 	public int get_count() {return count;}
 	public void hit() {count++;}
+	public void set_count(int i) {count = i;}
 
 	public void print() 
 	{
@@ -26,6 +27,6 @@ public class Word implements Comparable<Word> {
 	
 	public int compareTo(Word w)
 	{
-		return count - w.count;
+		return w.count - count;
     }
 }
