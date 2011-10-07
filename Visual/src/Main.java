@@ -1,19 +1,47 @@
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 
 
 public class Main {
     public static void main(String[] args) {
         Catcher catcher = new Catcher();
-        catcher.load_library();
-        catcher.analyse("你好呀你好呀, 这是一个测试");
+        try
+        {
+			catcher.load_library();
+			System.out.println("Library Load Successful!"); 
+		} 
+        catch (IOException e) 
+        {
+    		System.out.println("Library Load Error!");
+			e.printStackTrace();
+        }
+        try
+        {
+			catcher.analyse("res/input.txt");
+    		System.out.println("Analysis Successful!");
+		} 
+        catch (IOException e)
+        {
+    		System.out.println("Analysis Error!");
+			e.printStackTrace();
+		}
         
         Collection<Word> c = catcher.get_values();        
         //iterate through the collection
-        Iterator<Word> itr = c.iterator();
-        while(itr.hasNext())
+        Word[] result =  (Word[]) c.toArray(new Word[c.size()]);
+        Arrays.sort(result);
+       	for (int i = result.length - 1; i > -1; i--) result[i].print();
+        Painter painter = new Painter(result);
+        try
         {
-            itr.next().print();
-        }
+			painter.paint();
+    		System.out.println("Paint Successful!");
+		} 
+        catch (IOException e) 
+        {
+    		System.out.println("Paint Successful!");
+			e.printStackTrace();
+		}
     }
 }

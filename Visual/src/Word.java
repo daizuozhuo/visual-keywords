@@ -1,5 +1,5 @@
 
-public class Word {
+public class Word implements Comparable<Word> {
 	private int count;
 	private String str;
 	
@@ -23,4 +23,9 @@ public class Word {
 	{
 		System.out.println(str + " : " + count + " times");		
 	}
+	
+	public int compareTo(Word w)
+	{
+		return count - w.count;
+    }
 }
