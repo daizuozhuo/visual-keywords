@@ -7,6 +7,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 
 import javax.imageio.ImageIO;
 
@@ -31,6 +32,7 @@ public class Painter {
 
 	public void paint() throws IOException
 	{
+		long startTime = new Date().getTime();
 		if (words.length  == 0)
 		{
 			System.out.println("No Keywords Found!");
@@ -39,10 +41,10 @@ public class Painter {
 		
 		reset_count(); // Reset make is the size of the font
 		
-		for (int i = 0; i < words.length; i++)
+		for (int i = 0; i < 150 && i < words.length; i++)
 		{
 			paint_str(words[i]); // paint the keywords one by one
-			System.out.println((i + 1 ) + "/" + words.length + " done.");
+			System.out.println((i + 1 ) + " / " + words.length + " done.");
 		}		
 		
 		// Save the picture
@@ -50,7 +52,9 @@ public class Painter {
         ImageIO.write(img, "gif", outputfile);	
         
         
-		System.out.println("Paint Successful!");           
+		System.out.println("Paint Successful!");   
+		long endTime = new Date().getTime();
+		System.out.println("Time used: " + (endTime - startTime) / 1000 + " s" );
 	}
 	//according to the frequency of word determine the size of font.
 	private void reset_count() 
@@ -77,7 +81,7 @@ public class Painter {
 		g.setColor(new Color(word.get_count() / 4 ,255 - word.get_count(),255 - word.get_count()));
 		
 		// Get the bounds of the string
-		Rectangle2D  bounds = g.getFont().getStringBounds (words[0].get_str(), context);
+		Rectangle2D  bounds = g.getFont().getStringBounds (word.get_str(), context);
 		
 		// Try to find an empty space of the string
 		Point position = search_space(bounds);
@@ -92,18 +96,14 @@ public class Painter {
 	}
 	
 	private Point search_space(Rectangle2D bounds)
-	{
-		// A random position to start searching
-		int x = (int) (Math.random() * width);
-		int y = (int) (Math.random() * height);
-		
+	{		
 		// The bounds of the string
 		int str_X = (int) (bounds.getMaxX() - bounds.getMinX());
 		int str_Y = (int) (bounds.getMaxY() - bounds.getMinY());
-		
-		// Make sure it is within the possible area 
-		x %= (width - str_X);
-		y %= (height - str_Y);
+
+		// A random position to start searching
+		int x = (int) (Math.random() * (width - str_X));
+		int y = (int) (Math.random() * (height - str_Y));
 		
 		// The starting position of x and y
 		int init_Y = y;
@@ -134,8 +134,9 @@ public class Painter {
 			}
 		}	while (y != init_Y || x != init_X);	
 		
-		// Some where outside the picture
 		System.out.println("Error! No space available!");
+		
+		// Some where outside the picture
 		return new Point(width + 100, height + 100);
 	}	
 
