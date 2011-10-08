@@ -39,7 +39,7 @@ public class Painter {
 		
 		reset_count(); // Reset make is the size of the font
 		
-		for (int i = 0; i < 150; i++)
+		for (int i = 0; i < words.length; i++)
 		{
 			paint_str(words[i]); // paint the keywords one by one
 			System.out.println((i + 1 ) + "/" + words.length + " done.");
@@ -52,7 +52,7 @@ public class Painter {
         
 		System.out.println("Paint Successful!");           
 	}
-	
+	//according to the frequency of word determine the size of font.
 	private void reset_count() 
 	{
 		int sum = 0; // The sum of all the keywords found
