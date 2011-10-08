@@ -18,6 +18,7 @@ public class Painter {
 	private final static String fontfile = "res/font.ttf"; // Font
 	private final static int height = 900; // height of the picture
 	private final static int width = 1600; // width of the picture
+	Window window; // monitor window
 	private BufferedImage img = new BufferedImage(1600, 900, BufferedImage.TYPE_INT_ARGB);
 	Graphics g = img.createGraphics();
 	private final static FontRenderContext context = new FontRenderContext (null, false, false);
@@ -31,6 +32,8 @@ public class Painter {
 		img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		g = img.createGraphics();
 		g.fillRect(0, 0, 1600, 900); // Fill the picture with white
+		window = new Window("Window");
+		window.set_img(img);
 	}
 
 	public void paint() throws IOException
@@ -43,10 +46,12 @@ public class Painter {
 		}
 
 		reset_count(); // Reset make is the size of the font
-		for (int i = 0; i < 150 && i < words.length; i++)
-		{ 
+		
+		for (int i = 0; i < 50 && i < words.length; i++)
+		{
 			paint_str(words[i]); // paint the keywords one by one
 			System.out.println((i + 1 ) + " / " + words.length + " done.");
+			window.update();
 		}		
 		
 		// Save the picture
@@ -65,7 +70,7 @@ public class Painter {
 		for (int i = 0; i < words.length; i++) sum += words[i].get_count();
 		for (int i = 0; i < words.length; i++) 
 		{
-			int temp = words[i].get_count() * 150 / sum + 200 - 5 * i; // Function to determine the font size
+			int temp = words[i].get_count() * 150 / sum + 180 - 5 * i; // Function to determine the font size
 			if (temp < 30) temp = 30; // Minimum size 
 			else if (temp > 255) temp = 255; // Maximum size
 			words[i].set_count(temp);
@@ -89,19 +94,19 @@ public class Painter {
 		Point position = search_space(bounds);
 		
 		// Draw the string
-		g.drawString(word.get_str(), (int) (position.x - bounds.getMinX()), (int) (position.y - bounds.getMinY()));
+		g.drawString(word.get_str(), (int) (position.x + 5 - bounds.getMinX()), (int) (position.y + 5 - bounds.getMinY()));
 		
 //		// The bounds of the string
 //		g.drawRect(position.x, position.y, 
-//				(int) (bounds.getMaxX() - bounds.getMinX()),
-//				(int) (bounds.getMaxY() - bounds.getMinY()));		
+//				(int) (10 + bounds.getMaxX() - bounds.getMinX()),
+//				(int) (10 + bounds.getMaxY() - bounds.getMinY()));		
 	}
 	
 	private Point search_space(Rectangle2D bounds)
 	{		
 		// The bounds of the string
-		int str_X = (int) (bounds.getMaxX() - bounds.getMinX());
-		int str_Y = (int) (bounds.getMaxY() - bounds.getMinY());
+		int str_X = (int) (bounds.getMaxX() - bounds.getMinX()) + 10;
+		int str_Y = (int) (bounds.getMaxY() - bounds.getMinY()) + 10;
 
 		// A random position to start searching
 		//int x = (int) (Math.random() * (width - str_X));

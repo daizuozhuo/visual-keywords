@@ -4,7 +4,8 @@ import java.util.Collection;
 
 
 public class Main {
-    public static void main(String[] args) {
+    
+	public static void main(String[] args) {
         Catcher catcher = new Catcher();
         
         // Load library
