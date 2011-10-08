@@ -25,12 +25,17 @@ public class Painter {
 	private static Point p_cen=new Point(width/2,height/2);
 	private static int min_size=0;
 	
+	public int max(int a,int b)
+	{
+		if(a>=b)return a;
+		else return b;
+	}
 	public Painter(Word[] result) 
 	{
 		words = result;
 		img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		g = img.createGraphics();
-		g.fillRect(0, 0, 1600, 900); // Fill the picture with white
+		g.fillRect(0, 0, width, height); // Fill the picture with white
 		window = new Window("Window");
 		window.set_img(img);
 	}
@@ -78,8 +83,9 @@ public class Painter {
 		
 	}
 	
-	//set bacground image;
-	private void set_bacground(){
+	//set background image;
+	private void set_bacground()
+	{
 		BufferedImage bimg = null;
 		try {
 			bimg = ImageIO.read(new File("res/background.jpg"));
@@ -94,28 +100,30 @@ public class Painter {
 			}
 		}
 	}
+	
 	private boolean paint_str(Word word)
 	{
 		// Set the font
 		Font font = new Font(fontfile, Font.BOLD, word.get_count());
 		g.setFont(font);
 		
-		// Set the color of the string
-		g.setColor(new Color(word.get_count() / 4 ,255 - word.get_count(),255 - word.get_count()));
-		
 		// Get the bounds of the string
 		Rectangle2D  bounds = g.getFont().getStringBounds (word.get_str(), context);
-		
+		//g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		// Try to find an empty space of the string
 		Point position = search_space(bounds);
 		if(position.x>width)return false;
+		
+		// Set the color of the string
+		g.setColor(new Color(
+				 max( position.x/5>220 ? 220 : position.x/5 , 100 ),
+				 max( position.y/5>220 ? 220 : position.y/5 , 100 ),
+				 max( (position.x+position.y)/10>220 ? 220 : (position.x+position.y)/10 , 100 )
+				 ));
+		
 		// Draw the string
 		g.drawString(word.get_str(), (int) (position.x + 5 - bounds.getMinX()), (int) (position.y + 5 - bounds.getMinY()));
-		return true;
-//		// The bounds of the string
-//		g.drawRect(position.x, position.y, 
-//				(int) (10 + bounds.getMaxX() - bounds.getMinX()),
-//				(int) (10 + bounds.getMaxY() - bounds.getMinY()));		
+		return true;	
 	}
 	
 	private Point search_space(Rectangle2D bounds)
@@ -124,7 +132,7 @@ public class Painter {
 		int str_X = (int) (bounds.getMaxX() - bounds.getMinX()) + 10;
 		int str_Y = (int) (bounds.getMaxY() - bounds.getMinY()) + 10;
 
-		int loop=str_Y;
+		int loop=1;
 		int step=(int)(0.1*str_Y);
 		if(step<1)step=1;
 		int y=p_cen.y-loop;	
@@ -153,15 +161,15 @@ public class Painter {
 			{
 				for (int j = 0; j < str_X; j++)
 				{
-					if (x + j >= img.getWidth()) {
+					if (x + j-str_X/2 >= img.getWidth()) {
 						found = false;
 						break;
 					}
-					if (y + i >= img.getHeight()) {
+					if (y + i -str_Y/2 >= img.getHeight()) {
 						found = false;
 						break;
 					}
-					if (img.getRGB(x + j, y + i) != Color.white.getRGB()) 
+					if (img.getRGB(x + j -str_X/2, y + i -str_Y/2) != Color.white.getRGB()) 
 					{
 						found = false;
 						i = str_Y;
@@ -169,14 +177,13 @@ public class Painter {
 					}
 				}
 			}
-			if (found) return new Point(x, y);
+			if (found) return new Point(x-str_X/2, y-str_Y/2);
 			left_bound=p_cen.x-loop;
 			right_bound=p_cen.x+loop;
 			low_bound=p_cen.y-loop;
 			up_bound=p_cen.y+loop;
-			if(low_bound<=1)low_bound=step;
-			if(up_bound>=height-str_Y)up_bound=height-str_Y;
-			//System.out.println("x "+x+" y "+y+" l "+left_bound+" r "+right_bound+" l "+low_bound+" u "+up_bound);
+			if(low_bound<=str_Y/2)low_bound=step+str_Y/2;
+			if(up_bound>=height-str_Y/2)up_bound=height-str_Y/2;
 			if(x<=left_bound)
 			{
 				if(y>low_bound)y=y-step;
@@ -204,21 +211,20 @@ public class Painter {
 			{
 				init_X=left_bound-step;
 				init_Y=low_bound-step;
-				if(init_Y<=1)init_Y=step;
+				if(init_Y<=str_Y/2)init_Y=step+str_Y/2;
 				loop=loop+step;
 				System.out.println("loop "+loop);
 			}
 			
-			if(x>width-str_X)break;
-		}	while (loop<500);	
+		}	while (x<width-str_X/2);	
 		
 		System.out.println("Error! No space available!");
-		if(str_X<str_Y){
-			if(min_size==0)min_size=str_X;
-			if(min_size>str_X)min_size=str_X;
-		}else{
-			if(min_size==0)min_size=str_Y;
-			if(min_size>str_Y)min_size=str_Y;
+		if (str_X<str_Y) {
+			if (min_size==0) min_size=str_X;
+			if (min_size>str_X) min_size=str_X;
+		} else {
+			if(min_size==0) min_size=str_Y;
+			if(min_size>str_Y) min_size=str_Y;
 		}
 		
 		
