@@ -6,6 +6,8 @@ import java.util.Collection;
 public class Main {
     public static void main(String[] args) {
         Catcher catcher = new Catcher();
+        
+        // Load library
         try
         {
 			catcher.load_library();
@@ -16,6 +18,8 @@ public class Main {
     		System.out.println("Library Load Error!");
 			e.printStackTrace();
         }
+        
+        // Analyse input
         try
         {
 			catcher.analyse("res/input.txt");
@@ -27,11 +31,16 @@ public class Main {
 			e.printStackTrace();
 		}
         
+        // Sort the words found
         Collection<Word> c = catcher.get_values();        
         Word[] result =  (Word[]) c.toArray(new Word[c.size()]);
         Arrays.sort(result);
+        
        	for (int i = 0 ; i < result.length; i++) result[i].print();
-        Painter painter = new Painter(result);
+       	System.out.println("------------------ " + result.length + " keywords found ------------------");
+        
+       	// Paint the words
+       	Painter painter = new Painter(result);
         try
         {
 			painter.paint();
@@ -41,5 +50,6 @@ public class Main {
     		System.out.println("Paint Successful!");
 			e.printStackTrace();
 		}
+        
     }
 }

@@ -8,8 +8,8 @@ import java.util.Hashtable;
 
 
 public class Catcher {
-	private Hashtable<String, String> library;
-	private Hashtable<String, Word> result;
+	private Hashtable<String, String> library; // Hashtable for words in the library
+	private Hashtable<String, Word> result; // Hashtable for words found in the input file
 	
 	public Catcher()
 	{
@@ -17,9 +17,9 @@ public class Catcher {
 		result = new Hashtable<String, Word>();
 	}
 	
+	//read file and pub words in the hastable
 	public void load_library() throws IOException 
-	{
-		
+	{		
 		 File read = new File("res/library.txt"); 
 		 BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(read), "UTF-8"));
 		 String word =null; 
@@ -29,6 +29,7 @@ public class Catcher {
 		 }	
 	}
 	
+	// Return the collection of all the words found
 	public Collection<Word> get_values()
 	{
 		return result.values();
@@ -44,32 +45,34 @@ public class Catcher {
 		 {
 			 str += temp;
 		 }	
-		int index = 0;
+		 int index = 0;
 //		System.out.println("Start of analysis");
-		while (index < str.length())
-		{
+		 while (index < str.length()) // read the whole input file
+		 {
 //			System.out.println("Index = " + index);
-			for (int i = 7; i > 1; i--)
-			{
-				if (index + i > str.length()) continue;
+			 for (int i = 7; i > 1; i--) // search for known words, from the longest to the shortest
+			 {
+				 if (index + i > str.length()) continue;
 //				System.out.println("Index = " + index + "  i = " + i);
 //				System.out.println(str.substring(index, index + i));
-				if (library.containsKey(str.substring(index, index + i)))
-				{
-					if (result.containsKey(str.substring(index, index + i)))
-					{
-						result.get(str.substring(index, index + i)).hit();
-					}
-					else
-					{
-						result.put(str.substring(index, index + i), new Word(str.substring(index, index + i)));
-					}
+				 if (library.containsKey(str.substring(index, index + i))) // if a keyword is found
+				 {
+					 if (result.containsKey(str.substring(index, index + i)))
+					 {
+						 result.get(str.substring(index, index + i)).hit(); 
+						 // if the keyword has been found before
+					 }
+					 else
+					 {
+						 result.put(str.substring(index, index + i), new Word(str.substring(index, index + i)));
+						 // if it has never been found
+					 }
 //					System.out.println("Hit : " + str.substring(index, index + i));
-					index += i - 1;
-					break;
-				}
-			}
-			index++;
-		}
+					 index += i - 1;
+					 break;
+				 }
+			 }
+			 index++;
+		 }
 	}
 }

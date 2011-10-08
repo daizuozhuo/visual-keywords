@@ -1,7 +1,7 @@
 
 public class Word implements Comparable<Word> {
-	private int count;
-	private String str;
+	private int count; // Times this key words was found
+	private String str; // The key word
 	
 	public Word(String str)
 	{
@@ -17,7 +17,7 @@ public class Word implements Comparable<Word> {
 	
 	public String get_str() {return str;}
 	public int get_count() {return count;}
-	public void hit() {count++;}
+	public void hit() {count++;} // Found again
 	public void set_count(int i) {count = i;}
 
 	public void print() 
@@ -25,7 +25,7 @@ public class Word implements Comparable<Word> {
 		System.out.println(str + " : " + count + " times");		
 	}
 	
-	public int compareTo(Word w)
+	public int compareTo(Word w) // Override function for Comparable
 	{
 		return w.count - count;
     }
