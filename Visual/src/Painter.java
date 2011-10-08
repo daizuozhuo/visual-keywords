@@ -21,6 +21,9 @@ public class Painter {
 	private BufferedImage img = new BufferedImage(1600, 900, BufferedImage.TYPE_INT_ARGB);
 	Graphics g = img.createGraphics();
 	private final static FontRenderContext context = new FontRenderContext (null, false, false);
+	private static Point p_max=new Point(width/2,height/2);
+	private static Point p_min=new Point(width/2,height/2);
+	private static Point p_cen=new Point(width/2,height/2);
 	
 	public Painter(Word[] result) 
 	{
@@ -38,11 +41,10 @@ public class Painter {
 			System.out.println("No Keywords Found!");
 			return;
 		}
-		
+
 		reset_count(); // Reset make is the size of the font
-		
 		for (int i = 0; i < 150 && i < words.length; i++)
-		{
+		{ 
 			paint_str(words[i]); // paint the keywords one by one
 			System.out.println((i + 1 ) + " / " + words.length + " done.");
 		}		
@@ -102,9 +104,11 @@ public class Painter {
 		int str_Y = (int) (bounds.getMaxY() - bounds.getMinY());
 
 		// A random position to start searching
-		int x = (int) (Math.random() * (width - str_X));
-		int y = (int) (Math.random() * (height - str_Y));
-		
+		//int x = (int) (Math.random() * (width - str_X));
+		//int y = (int) (Math.random() * (height - str_Y));
+		int loop=str_Y;
+		int y=p_cen.y-loop-1;	
+		int x=p_cen.x-loop-1;
 		// The starting position of x and y
 		int init_Y = y;
 		int init_X = x;
@@ -124,15 +128,42 @@ public class Painter {
 					}
 				}
 			}
-			if (found) return new Point(x, y);
-			x++;
-			if (x >= width - str_X)
+			if (found)
 			{
-				x = 0;
-				y++;
-				if (y >= height - str_Y) y = 0;
+				
+				return new Point(x, y);
 			}
-		}	while (y != init_Y || x != init_X);	
+			//System.out.println(x+" "+y+" "+loop);
+			if(x<p_cen.x-loop)
+			{
+				if(y>=p_cen.y-loop)y--;
+				else x++;
+			}else if(x>p_cen.x+loop)
+			{ 
+				if(y<=p_cen.y+loop)y++;
+				else x--;
+			}else
+			{
+				if(y<=p_cen.y+loop)
+				{
+					x++;
+				}else if(y>=p_cen.y-loop)
+				{
+					x--;
+				}
+			}
+			
+			//System.out.println(x+" "+y);
+			//System.out.println();
+			if(x==init_X&&y==init_Y)
+			{
+				init_X--;
+				init_Y--;
+				loop++;
+				//System.out.println("loop "+loop);
+			}
+			if(x>width-str_X||y>height-str_Y)break;
+		}	while (loop<500);	
 		
 		System.out.println("Error! No space available!");
 		
