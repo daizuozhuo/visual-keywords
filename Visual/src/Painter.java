@@ -60,7 +60,7 @@ public class Painter {
 		long endTime = new Date().getTime();
 		System.out.println("Time used: " + (endTime - startTime) / 1000 + " s" );
 	}
-	
+	//according to the frequency of word determine the size of font.
 	private void reset_count() 
 	{
 		int sum = 0; // The sum of all the keywords found
