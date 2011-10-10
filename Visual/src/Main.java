@@ -24,7 +24,7 @@ public class Main {
         // Analyse input
         try
         {
-			catcher.analyse("res/input1.txt");
+			catcher.analyse("res/input.txt");
     		System.out.println("Analysis Successful!");
 		} 
         catch (IOException e)
