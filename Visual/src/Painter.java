@@ -21,7 +21,9 @@ public class Painter {
 	private BufferedImage img;
 	Graphics g;
 	private final static FontRenderContext context = new FontRenderContext (null, false, false);
-	private static Point p_cen;
+	private static Point p_cen;private static final int max_num = 1500;
+	private static final int font_min = 10;
+	private static final int font_max = 255;
 	private static Point min_size=new Point(0,0);
 	private Bound bound;
 	Shape bound_shape;
@@ -56,10 +58,10 @@ public class Painter {
 			System.out.println("No Keywords Found!");
 			return;
 		}
-		System.out.println("in paint");
+
 		reset_count(); // Reset make is the size of the font
 		
-		for (int i = 0; i < 200 && i < words.length; i++)
+		for (int i = 0; i < max_num && i < words.length; i++)
 		{
 			paint_str(words[i]); // paint the keywords one by one
 			System.out.println((i + 1 ) + " / " + words.length + " done.");
@@ -84,13 +86,14 @@ public class Painter {
 		for (int i = 0; i < words.length; i++) 
 		{
 			int temp = words[i].get_count() * 150 / sum + 180 - 5 * i; // Function to determine the font size
-			if (temp < 30) temp = 30; // Minimum size 
-			else if (temp > 255) temp = 255; // Maximum size
+			if (temp < font_min) temp = font_min; // Minimum size 
+			else if (temp > font_max) temp = font_max; // Maximum size
 			words[i].set_count(temp);
 		}
 		
 	}
 	
+
 	private boolean paint_str(Word word)
 	{
 		//Graphics2D g2=(Graphics2D) g;
@@ -98,6 +101,7 @@ public class Painter {
 		// Set the font
 		Font font = new Font(fontfile, Font.BOLD, word.get_count());
 		g.setFont(font);
+		
 		// Get the bounds of the string
 		Rectangle2D  bounds = g.getFont().getStringBounds (word.get_str(), context);
 		// Try to find an empty space of the string
@@ -116,6 +120,7 @@ public class Painter {
 		return true;	
 	}
 	
+	
 	private Point search_space(Rectangle2D bounds)
 	{		
 		// The bounds of the string
@@ -123,7 +128,7 @@ public class Painter {
 		int str_Y = (int) (bounds.getMaxY() - bounds.getMinY()) + 10;
 
 		int loop=1;
-		int step=(int)(0.05*str_Y);
+		int step=(int)(0.1*str_Y);
 		if(step<1)step=1;
 		int y=p_cen.y-loop;	
 		int x=p_cen.x-loop;
@@ -136,43 +141,19 @@ public class Painter {
 		int low_bound=0;
 		
 		do
-		{
-			boolean found = true;
+		{	
+			
 			//System.out.println(str_X+" "+str_Y+" "+min_size+" "+step);
 			
 			if(min_size.x!=0){
 				if(str_X>=min_size.x&&str_Y>=min_size.y)
 				{
-					found=false;
 					break;
 				}
 				if(min_size.y==44)break;
 			}
-			for (int i = 0; i < str_Y; i++)
-			{
-				for (int j = 0; j < str_X; j++)
-				{
-					if ( !bound_shape.contains(x + j-str_X/2, y + i -str_Y/2) ) {
-						found=false;
-						break;
-					}
-					if (x + j-str_X/2 >= img.getWidth()) {
-						found = false;
-						break;
-					}
-					if (y + i -str_Y/2 >= img.getHeight()) {
-						found = false;
-						break;
-					}
-					if (img.getRGB(x + j -str_X/2, y + i -str_Y/2) != Color.white.getRGB()) 
-					{
-						found = false;
-						i = str_Y;
-						break;
-					}
-				}
-			}
-			if (found) return new Point(x-str_X/2, y-str_Y/2);
+			
+			if (is_empty(x-str_X/2, y-str_Y/2, str_X, str_Y)) return new Point(x-str_X/2, y-str_Y/2);
 			left_bound=p_cen.x-loop;
 			right_bound=p_cen.x+loop;
 			low_bound=p_cen.y-loop;
@@ -199,7 +180,7 @@ public class Painter {
 					x=x+step;
 				}
 			}
-			//System.out.println(x+" "+y+" "+init_X+" "+init_Y+" "+loop);
+//			System.out.println(x+" "+y+" "+init_X+" "+init_Y+" "+loop);
 			//System.out.println(x+" "+y);
 			//System.out.println();
 			if(x<=init_X&&y<=init_Y)
@@ -208,7 +189,7 @@ public class Painter {
 				init_Y=low_bound-step;
 				if(init_Y<=str_Y/2)init_Y=step+str_Y/2;
 				loop=loop+step;
-				System.out.println("loop "+loop);
+//				System.out.println("loop "+loop);
 			}
 			
 		}	while (x<width-str_X/2);	
@@ -224,5 +205,71 @@ public class Painter {
 		// Some where outside the picture
 		return new Point(width + 100, height + 100);
 	}	
+	
+	private boolean is_empty(int x, int y, int str_X, int str_Y)
+	{
+		if (x + str_X >= width || y + str_Y >= height) return false;
+		
+		int i = 0;
+		for (int j = 0; j < str_X; j += 1)
+		{
+			if (img.getRGB(x + j, y + i) != Color.white.getRGB()) 
+			{
+				return false;
+			}
+		}
+		
+		i = str_Y;
+		for (int j = 0; j < str_X; j += 1)
+		{
+			if (img.getRGB(x + j, y + i) != Color.white.getRGB()) 
+			{
+				return false;
+			}
+		}	
+		
+		int j = 0;
+		for (i = 0; i < str_Y; i += 1)
+		{
+			if (img.getRGB(x + j, y + i) != Color.white.getRGB()) 
+			{
+				return false;
+			}
+		}
+		
+		j = str_X;
+		for (i = 0; i < str_Y; i += 1)
+		{
+			if (img.getRGB(x + j, y + i) != Color.white.getRGB()) 
+			{
+				return false;
+			}
+		}	
+		
+		
+		for (j = 0; j < str_X; j += 1)
+		{
+			if (img.getRGB(x + j, y + j * str_Y / str_X) != Color.white.getRGB()) 
+			{
+				return false;
+			}
+		}	
 
+		for (j = 0; j < str_X; j += 1)
+		{
+			if (img.getRGB(x +str_X - j, y + j * str_Y / str_X) != Color.white.getRGB()) 
+			{
+				return false;
+			}
+		}
+		
+//		g.drawLine(x, y, x + str_X, y);
+//		g.drawLine(x, y + str_Y, x + str_X, y + str_Y);
+//		g.drawLine(x, y, x, y + str_Y);
+//		g.drawLine(x + str_X, y, x + str_X, y + str_Y);
+//		g.drawLine(x, y, x + str_X, y + str_Y);
+//		g.drawLine(x + str_X, y, x, y + str_Y);
+		
+		return true;
+	}
 }
