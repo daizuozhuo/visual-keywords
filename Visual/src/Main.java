@@ -24,7 +24,7 @@ public class Main {
         // Analyse input
         try
         {
-			catcher.analyse("res/input1.txt");
+			catcher.analyse("res/input.txt");
     		System.out.println("Analysis Successful!");
 		} 
         catch (IOException e)
@@ -42,16 +42,22 @@ public class Main {
        	System.out.println("------------------ " + result.length + " keywords found ------------------");
         
        	// Paint the words
-       	Painter painter = new Painter(result);
-        try
-        {
-			painter.paint();
-		} 
-        catch (IOException e) 
-        {
-    		System.out.println("Paint Successful!");
-			e.printStackTrace();
-		}
+       	Window window = new Window("Visual KeyWords");
+       	Painter painter = new Painter(result,window);
+       	while (true) {
+       	if ( window.is_start() ) {
+       		try
+       		{
+       			painter.paint();
+       		} 
+       		catch (IOException e) 
+       		{
+       			System.out.println("Paint Successful!");
+       			e.printStackTrace();
+       		}
+       		break;
+       	}
+       	}
         
     }
 }

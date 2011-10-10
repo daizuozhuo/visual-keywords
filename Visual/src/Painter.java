@@ -1,42 +1,50 @@
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Shape;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
-
 import javax.imageio.ImageIO;
 
-
 public class Painter {
-
 	private Word[] words; // keywords to paint
 	private final static String fontfile = "res/font.ttf"; // Font
-	private final static int height = 900; // height of the picture
-	private final static int width = 1600; // width of the picture
+	private static int height = 900; // height of the picture
+	private static int width = 1600; // width of the picture
 	Window window; // monitor window
-	private BufferedImage img = new BufferedImage(1600, 900, BufferedImage.TYPE_INT_ARGB);
-	Graphics g = img.createGraphics();
+	private BufferedImage img;
+	Graphics g;
 	private final static FontRenderContext context = new FontRenderContext (null, false, false);
-	private static Point p_cen=new Point(width/2,height/2);
-	private static int min_size=0;
+	private static Point p_cen;
+	private static Point min_size=new Point(0,0);
+	private Bound bound;
+	Shape bound_shape;
 	
 	public int max(int a,int b)
 	{
 		if(a>=b)return a;
 		else return b;
 	}
-	public Painter(Word[] result) 
+	public Painter(Word[] result,Window w) 
 	{
-		words = result;
+		window = w;
+		if(w.bimg!=null){
+			height=w.bimg.getHeight();
+			width=w.bimg.getWidth();
+		}
 		img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		p_cen=new Point(width/2,height/2);
+		bound=new Bound(2,width,height);
+		bound_shape=bound.get_shape();
+		words = result;
 		g = img.createGraphics();
 		g.fillRect(0, 0, width, height); // Fill the picture with white
-		window = new Window("Window");
 		window.set_img(img);
 	}
 
@@ -48,16 +56,16 @@ public class Painter {
 			System.out.println("No Keywords Found!");
 			return;
 		}
-
+		System.out.println("in paint");
 		reset_count(); // Reset make is the size of the font
 		
-		for (int i = 0; i < 150 && i < words.length; i++)
+		for (int i = 0; i < 200 && i < words.length; i++)
 		{
 			paint_str(words[i]); // paint the keywords one by one
 			System.out.println((i + 1 ) + " / " + words.length + " done.");
 			window.update();
 		}		
-		set_bacground();
+		window.set_background();
 		window.update();
 		// Save the picture
 		File outputfile = new File("res/output.gif");  
@@ -83,38 +91,20 @@ public class Painter {
 		
 	}
 	
-	//set background image;
-	private void set_bacground()
-	{
-		BufferedImage bimg = null;
-		try {
-			bimg = ImageIO.read(new File("res/background.jpg"));
-		} catch (IOException e) {
-			System.out.println("use white bacground");
-		}
-		for(int i=0;i<width;i++) {
-			for(int j=0;j<height;j++) {
-				if(img.getRGB(i,j)==Color.white.getRGB()) {
-					img.setRGB(i, j, bimg.getRGB(i,j));
-				}
-			}
-		}
-	}
-	
 	private boolean paint_str(Word word)
 	{
+		//Graphics2D g2=(Graphics2D) g;
+		//g2.fill(bound_shape);
 		// Set the font
 		Font font = new Font(fontfile, Font.BOLD, word.get_count());
 		g.setFont(font);
-		
 		// Get the bounds of the string
 		Rectangle2D  bounds = g.getFont().getStringBounds (word.get_str(), context);
-		//g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		// Try to find an empty space of the string
 		Point position = search_space(bounds);
 		if(position.x>width)return false;
 		
-		// Set the color of the string
+		// Set the colour of the string which is related to its position
 		g.setColor(new Color(
 				 max( position.x/5>220 ? 220 : position.x/5 , 100 ),
 				 max( position.y/5>220 ? 220 : position.y/5 , 100 ),
@@ -133,7 +123,7 @@ public class Painter {
 		int str_Y = (int) (bounds.getMaxY() - bounds.getMinY()) + 10;
 
 		int loop=1;
-		int step=(int)(0.1*str_Y);
+		int step=(int)(0.05*str_Y);
 		if(step<1)step=1;
 		int y=p_cen.y-loop;	
 		int x=p_cen.x-loop;
@@ -148,19 +138,24 @@ public class Painter {
 		do
 		{
 			boolean found = true;
-			System.out.println(str_X+" "+str_Y+" "+min_size+" "+step);
+			//System.out.println(str_X+" "+str_Y+" "+min_size+" "+step);
 			
-			if(min_size!=0){
-				if(str_X>=min_size&&str_Y>=min_size)
+			if(min_size.x!=0){
+				if(str_X>=min_size.x&&str_Y>=min_size.y)
 				{
 					found=false;
 					break;
 				}
+				if(min_size.y==44)break;
 			}
 			for (int i = 0; i < str_Y; i++)
 			{
 				for (int j = 0; j < str_X; j++)
 				{
+					if ( !bound_shape.contains(x + j-str_X/2, y + i -str_Y/2) ) {
+						found=false;
+						break;
+					}
 					if (x + j-str_X/2 >= img.getWidth()) {
 						found = false;
 						break;
@@ -204,7 +199,7 @@ public class Painter {
 					x=x+step;
 				}
 			}
-			System.out.println(x+" "+y+" "+init_X+" "+init_Y+" "+loop);
+			//System.out.println(x+" "+y+" "+init_X+" "+init_Y+" "+loop);
 			//System.out.println(x+" "+y);
 			//System.out.println();
 			if(x<=init_X&&y<=init_Y)
@@ -219,13 +214,11 @@ public class Painter {
 		}	while (x<width-str_X/2);	
 		
 		System.out.println("Error! No space available!");
-		if (str_X<str_Y) {
-			if (min_size==0) min_size=str_X;
-			if (min_size>str_X) min_size=str_X;
-		} else {
-			if(min_size==0) min_size=str_Y;
-			if(min_size>str_Y) min_size=str_Y;
-		}
+		
+			if (min_size.x==0) min_size.x=str_X;
+			if (min_size.x>str_X) min_size.x=str_X;
+			if(min_size.y==0) min_size.y=str_Y;
+			if(min_size.y>str_Y) min_size.y=str_Y;
 		
 		
 		// Some where outside the picture
