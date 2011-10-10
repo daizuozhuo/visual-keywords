@@ -15,14 +15,14 @@ import javax.imageio.ImageIO;
 public class Painter {
 	private Word[] words; // keywords to paint
 	private final static String fontfile = "res/font.ttf"; // Font
-	private static int height = 900; // height of the picture
+	private static int height =1600; // height of the picture
 	private static int width = 1600; // width of the picture
 	Window window; // monitor window
 	private BufferedImage img;
 	Graphics g;
 	private final static FontRenderContext context = new FontRenderContext (null, false, false);
 	private static Point p_cen;private static final int max_num = 1500;
-	private static final int font_min = 10;
+	private static final int font_min = 44;
 	private static final int font_max = 255;
 	private static Point min_size=new Point(0,0);
 	private Bound bound;
@@ -42,8 +42,11 @@ public class Painter {
 		}
 		img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		p_cen=new Point(width/2,height/2);
+		
+		//set shape
 		bound=new Bound(2,width,height);
 		bound_shape=bound.get_shape();
+		
 		words = result;
 		g = img.createGraphics();
 		g.fillRect(0, 0, width, height); // Fill the picture with white
@@ -150,9 +153,8 @@ public class Painter {
 				{
 					break;
 				}
-				if(min_size.y==44)break;
+				if(min_size.y==font_min)break;
 			}
-			
 			if (is_empty(x-str_X/2, y-str_Y/2, str_X, str_Y)) return new Point(x-str_X/2, y-str_Y/2);
 			left_bound=p_cen.x-loop;
 			right_bound=p_cen.x+loop;
@@ -180,9 +182,7 @@ public class Painter {
 					x=x+step;
 				}
 			}
-//			System.out.println(x+" "+y+" "+init_X+" "+init_Y+" "+loop);
-			//System.out.println(x+" "+y);
-			//System.out.println();
+			
 			if(x<=init_X&&y<=init_Y)
 			{
 				init_X=left_bound-step;
@@ -213,7 +213,7 @@ public class Painter {
 		int i = 0;
 		for (int j = 0; j < str_X; j += 1)
 		{
-			if (img.getRGB(x + j, y + i) != Color.white.getRGB()) 
+			if ( !is_inshape(x + j, y + i) ) 
 			{
 				return false;
 			}
@@ -222,7 +222,7 @@ public class Painter {
 		i = str_Y;
 		for (int j = 0; j < str_X; j += 1)
 		{
-			if (img.getRGB(x + j, y + i) != Color.white.getRGB()) 
+			if ( !is_inshape(x + j, y + i) ) 
 			{
 				return false;
 			}
@@ -231,7 +231,7 @@ public class Painter {
 		int j = 0;
 		for (i = 0; i < str_Y; i += 1)
 		{
-			if (img.getRGB(x + j, y + i) != Color.white.getRGB()) 
+			if ( !is_inshape(x + j, y + i) ) 
 			{
 				return false;
 			}
@@ -240,7 +240,7 @@ public class Painter {
 		j = str_X;
 		for (i = 0; i < str_Y; i += 1)
 		{
-			if (img.getRGB(x + j, y + i) != Color.white.getRGB()) 
+			if ( !is_inshape(x + j, y + i) ) 
 			{
 				return false;
 			}
@@ -249,7 +249,7 @@ public class Painter {
 		
 		for (j = 0; j < str_X; j += 1)
 		{
-			if (img.getRGB(x + j, y + j * str_Y / str_X) != Color.white.getRGB()) 
+			if ( !is_inshape(x + j, y + j * str_Y / str_X) ) 
 			{
 				return false;
 			}
@@ -257,19 +257,21 @@ public class Painter {
 
 		for (j = 0; j < str_X; j += 1)
 		{
-			if (img.getRGB(x +str_X - j, y + j * str_Y / str_X) != Color.white.getRGB()) 
+			if ( !is_inshape(x +str_X - j, y + j * str_Y / str_X) ) 
 			{
 				return false;
 			}
 		}
-		
-//		g.drawLine(x, y, x + str_X, y);
-//		g.drawLine(x, y + str_Y, x + str_X, y + str_Y);
-//		g.drawLine(x, y, x, y + str_Y);
-//		g.drawLine(x + str_X, y, x + str_X, y + str_Y);
-//		g.drawLine(x, y, x + str_X, y + str_Y);
-//		g.drawLine(x + str_X, y, x, y + str_Y);
-		
+
 		return true;
+	}
+
+	private boolean is_inshape(int a, int b)
+	{
+		if (img.getRGB(a, b) == Color.white.getRGB() && bound_shape.contains(a, b) ) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 }
