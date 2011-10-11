@@ -1,42 +1,52 @@
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 
 
 @SuppressWarnings("serial")
-public class Window extends JFrame
+public class Window extends JFrame implements ComponentListener
 {
 	private Graphics g;
-	private Image img;
-	public BufferedImage bimg;
+	private BufferedImage img;
+	private BufferedImage fimg;
+	private Word[] result;
 	private JMenuBar menuBar;
 	private JMenu menu;
 	private JMenuItem menuItem_start;
 	private JMenuItem menuItem_back;
 	private JMenuItem menuItem_exit;
-	private boolean is_start=true;
+	public final int height = 900; // height of the picture
+	public final int width = 1600; // width of the picture
 	
-	public Window(String title)
+	public Window(String title, Word[] result)
 	{
 		super(title);
-		setSize(1200,700);
 		setLocation(30,50);
 		setVisible(true);
+		setSize(width, height + 50);
+		setIconImage(Toolkit.getDefaultToolkit().getImage("res/icon.jpg"));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setMenubar();
-		g = this.getGraphics();
+		addComponentListener(this);
+		g = this.getContentPane().getGraphics();
+		this.getContentPane().setSize(width, height);
+		this.result = result;
 	}
 	
 	//set menu;
@@ -51,9 +61,9 @@ public class Window extends JFrame
 
 		//a group of JMenuItems
 		
-		menuItem_start = new JMenuItem("start",KeyEvent.VK_T);
-		menuItem_back = new JMenuItem("set background image",KeyEvent.VK_T);
-		menuItem_exit=new JMenuItem("exit",KeyEvent.VK_T);
+		menuItem_start = new JMenuItem("Start",KeyEvent.VK_T);
+		menuItem_back = new JMenuItem("Set background image",KeyEvent.VK_B);
+		menuItem_exit=new JMenuItem("Exit",KeyEvent.VK_E);
 		menuItem_start.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e)
             {
@@ -84,17 +94,21 @@ public class Window extends JFrame
 	
 	public void start()
 	{
-		is_start=true;
-		System.out.println("start");
+       	Painter painter = new Painter(result, this);
+       	try 
+       	{
+       		JOptionPane.showMessageDialog(null, painter.paint(), "Message", 1);
+       		update();
+		} catch (IOException e) 
+		{
+			System.out.println("Paint Error!");
+			e.printStackTrace();
+		}
 	}
 	
-	public boolean is_start()
+	public void set_img(BufferedImage img)
 	{
-		System.out.println("check");
-		return is_start;
-	}
-	public void set_img(Image img)
-	{
+		this.fimg = img;
 		this.img = img;
 	}
 	
@@ -106,31 +120,65 @@ public class Window extends JFrame
 	       System.out.println("You chose to open this file: " +
 	            chooser.getSelectedFile().getName());
 	       File file=chooser.getSelectedFile();
-	       try {
-				bimg = ImageIO.read(file);
-			} catch (IOException e) {
+	       try 
+	       {
+	    	   BufferedImage bimg = ImageIO.read(file);
+	    	   set_background(bimg);
+	       } catch (IOException e)
+	       {
 				System.out.println("use white bacground");
-			}
+	       }
 	    }
 	}
 	
-	public void set_background()
+	public void set_background(BufferedImage bimg)
 	{
-		if ( bimg != null ){
-			BufferedImage fimg=(BufferedImage) img;
-			for(int i=0;i<fimg.getWidth();i++) {
-				for(int j=0;j<fimg.getHeight();j++) {
-					if(fimg.getRGB(i,j)==Color.white.getRGB()) {
-						fimg.setRGB(i, j, bimg.getRGB(i,j));
+		if (bimg != null)
+		{
+			for(int i = 0; i < width; i++) 
+			{
+				for(int j = 0; j < height; j++) 
+				{
+					if(fimg.getRGB(i,j) == Color.white.getRGB())
+					{
+						img.setRGB(i, j, bimg.getRGB(i * bimg.getWidth() / width, j * bimg.getHeight() / height));
+					}
+					else 
+					{
+						img.setRGB(i, j, fimg.getRGB(i, j));
 					}
 				}
 			}
-		img=fimg;
 		}
 	}
+	
 	public void update()
 	{
-		g.drawImage(img, 0, 50, 1200, 675, this);
+		g.drawImage(img, 0, 0, width, height, this);
 		//update(g);
+	}
+
+	@Override
+	public void componentHidden(ComponentEvent e) 
+	{
+		this.validate();		
+	}
+
+	@Override
+	public void componentMoved(ComponentEvent e) 
+	{
+		this.validate();
+	}
+
+	@Override
+	public void componentResized(ComponentEvent e)
+	{
+		this.validate();
+	}
+
+	@Override
+	public void componentShown(ComponentEvent e)
+	{
+		this.validate();
 	}
 }

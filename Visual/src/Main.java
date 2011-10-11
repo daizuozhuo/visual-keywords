@@ -42,22 +42,7 @@ public class Main {
        	System.out.println("------------------ " + result.length + " keywords found ------------------");
         
        	// Paint the words
-       	Window window = new Window("Visual KeyWords");
-       	Painter painter = new Painter(result,window);
-       	while (true) {
-       	if ( window.is_start() ) {
-       		try
-       		{
-       			painter.paint();
-       		} 
-       		catch (IOException e) 
-       		{
-       			System.out.println("Paint Successful!");
-       			e.printStackTrace();
-       		}
-       		break;
-       	}
-       	}
+       	Window window = new Window("Visual KeyWords", result);
         
     }
 }
