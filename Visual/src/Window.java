@@ -1,10 +1,6 @@
-import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -20,32 +16,29 @@ import javax.swing.JOptionPane;
 
 
 @SuppressWarnings("serial")
-public class Window extends JFrame implements ComponentListener
-{
-	private Graphics g;
-	private BufferedImage img;
-	private BufferedImage fimg;
+public class Window extends JFrame {
+
 	private Word[] result;
 	private JMenuBar menuBar;
 	private JMenu menu;
 	private JMenuItem menuItem_start;
 	private JMenuItem menuItem_back;
+	private JMenuItem menuItem_save;
 	private JMenuItem menuItem_exit;
-	public final int height = 900; // height of the picture
-	public final int width = 1600; // width of the picture
+	private Wordle wordle;
 	
 	public Window(String title, Word[] result)
 	{
 		super(title);
 		setLocation(30,50);
 		setVisible(true);
-		setSize(width, height + 50);
 		setIconImage(Toolkit.getDefaultToolkit().getImage("res/icon.jpg"));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setMenubar();
-		addComponentListener(this);
-		g = this.getContentPane().getGraphics();
-		this.getContentPane().setSize(width, height);
+		wordle = new Wordle();
+		setContentPane(wordle);
+		setResizable(false);
+		pack();
 		this.result = result;
 	}
 	
@@ -61,9 +54,11 @@ public class Window extends JFrame implements ComponentListener
 
 		//a group of JMenuItems
 		
-		menuItem_start = new JMenuItem("Start",KeyEvent.VK_T);
+		menuItem_start = new JMenuItem("Start",KeyEvent.VK_S);
 		menuItem_back = new JMenuItem("Set background image",KeyEvent.VK_B);
+		menuItem_save = new JMenuItem("Save Image",KeyEvent.VK_I);
 		menuItem_exit=new JMenuItem("Exit",KeyEvent.VK_E);
+		
 		menuItem_start.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e)
             {
@@ -78,6 +73,13 @@ public class Window extends JFrame implements ComponentListener
             }
         });    
 		
+		menuItem_save.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e)
+            {
+                wordle.saveImage();
+            }
+        });   
+		
 		menuItem_exit.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e)
             {
@@ -87,6 +89,7 @@ public class Window extends JFrame implements ComponentListener
 		
 		menu.add(menuItem_start);
 		menu.add(menuItem_back);
+		menu.add(menuItem_save);
 		menu.add(menuItem_exit);
 		
 		this.setJMenuBar(menuBar);
@@ -94,22 +97,10 @@ public class Window extends JFrame implements ComponentListener
 	
 	public void start()
 	{
-       	Painter painter = new Painter(result, this);
-       	try 
-       	{
-       		JOptionPane.showMessageDialog(null, painter.paint(), "Message", 1);
-       		update();
-		} catch (IOException e) 
-		{
-			System.out.println("Paint Error!");
-			e.printStackTrace();
-		}
-	}
-	
-	public void set_img(BufferedImage img)
-	{
-		this.fimg = img;
-		this.img = img;
+       	Painter painter = new Painter(result, wordle);
+
+   		JOptionPane.showMessageDialog(null, painter.paint(), "Message", 1);
+
 	}
 	
 	public void choose_backimg()
@@ -123,62 +114,12 @@ public class Window extends JFrame implements ComponentListener
 	       try 
 	       {
 	    	   BufferedImage bimg = ImageIO.read(file);
-	    	   set_background(bimg);
+	    	   //set_background(bimg);
 	       } catch (IOException e)
 	       {
 				System.out.println("use white bacground");
 	       }
 	    }
 	}
-	
-	public void set_background(BufferedImage bimg)
-	{
-		if (bimg != null)
-		{
-			for(int i = 0; i < width; i++) 
-			{
-				for(int j = 0; j < height; j++) 
-				{
-					if(fimg.getRGB(i,j) == Color.white.getRGB())
-					{
-						img.setRGB(i, j, bimg.getRGB(i * bimg.getWidth() / width, j * bimg.getHeight() / height));
-					}
-					else 
-					{
-						img.setRGB(i, j, fimg.getRGB(i, j));
-					}
-				}
-			}
-		}
-	}
-	
-	public void update()
-	{
-		g.drawImage(img, 0, 0, width, height, this);
-		//update(g);
-	}
 
-	@Override
-	public void componentHidden(ComponentEvent e) 
-	{
-		this.validate();		
-	}
-
-	@Override
-	public void componentMoved(ComponentEvent e) 
-	{
-		this.validate();
-	}
-
-	@Override
-	public void componentResized(ComponentEvent e)
-	{
-		this.validate();
-	}
-
-	@Override
-	public void componentShown(ComponentEvent e)
-	{
-		this.validate();
-	}
 }

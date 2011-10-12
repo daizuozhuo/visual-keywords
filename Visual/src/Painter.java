@@ -6,22 +6,19 @@ import java.awt.Shape;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.Date;
-
-import javax.imageio.ImageIO;
 
 public class Painter {
 	private Word[] words; // keywords to paint
 	private final static String fontfile = "res/font.ttf"; // Font
-	Window window; // monitor window
+	Wordle wordle; // JPanel to paint on
 	private BufferedImage img;
 	Graphics g;
 	private final static FontRenderContext context = new FontRenderContext (null, false, false);
-	private static Point p_cen;private static final int max_num = 150;
+	private static Point p_cen;
+	private static final int max_num = 220;
 	private static final int font_min = 45;
-	private static final int font_max = 150;
+	private static final int font_max = 60;
 	private static Point min_size=new Point(0,0);
 	private Bound bound;
 	Shape bound_shape;
@@ -32,23 +29,23 @@ public class Painter {
 		else return b;
 	}
 	
-	public Painter(Word[] result,Window w) 
+	public Painter(Word[] result, Wordle wordle) 
 	{
-		window = w;
-		img = new BufferedImage(window.width, window.height, BufferedImage.TYPE_INT_ARGB);
-		p_cen=new Point(window.width/2,window.height/2);
+		this.wordle = wordle;
+		img = new BufferedImage(wordle.width, wordle.height, BufferedImage.TYPE_INT_ARGB);
+		p_cen=new Point(wordle.width/2,wordle.height/2);
 		
 		//set shape
-		bound=new Bound(2,window.width,window.height);
+		bound=new Bound(2,wordle.width,wordle.height);
 		bound_shape=bound.get_shape();
 		
 		words = result;
 		g = img.createGraphics();
-		g.fillRect(0, 0, window.width, window.height); // Fill the picture with white
-		window.set_img(img);
+		g.fillRect(0, 0, wordle.width, wordle.height); // Fill the picture with white
+		wordle.setImg(img);
 	}
 
-	public String paint() throws IOException
+	public String paint()
 	{
 		long startTime = new Date().getTime();
 		if (words.length == 0)
@@ -58,26 +55,25 @@ public class Painter {
 
 		int total = 0;
 		int drawn = 0;
-		set_size(); // Reset make is the size of the font
-		
+		setSize(); // Reset make is the size of the font
+
+
 		for (int i = 0; i < max_num && i < words.length; i++)
 		{
-			drawn += paint_str(words[i]); // paint the keywords one by one
+			drawn += paintStr(words[i]); // paint the keywords one by one
 			System.out.println((i + 1 ) + " / " + words.length + " done.");
-			window.update();
+			//wordle.update();
 			total++;
 		}		
-		// Save the picture
-		File outputfile = new File("res/output.gif");  
-        ImageIO.write(img, "gif", outputfile);	
-        
-        
+		wordle.repaint();
 		System.out.println("Paint Successful!");   
 		long endTime = new Date().getTime();
-		return drawn + " / " + total + "drawn. \nTime used: " + (endTime - startTime) / 1000 + "." + (endTime - startTime) % 1000 + " s.";
+		return drawn + " / " + total + " drawn. \nTime used: " + (endTime - startTime) / 1000 + "." + (endTime - startTime) % 1000 + " s.";
 	}
+	
+	
 	//according to the frequency of word determine the size of font.
-	private void set_size() 
+	private void setSize() 
 	{
 		int sum = 0; // The sum of all the keywords found
 		for (int i = 0; i < words.length; i++) sum += words[i].get_count();
@@ -92,7 +88,7 @@ public class Painter {
 	}
 	
 
-	private int paint_str(Word word)
+	private int paintStr(Word word)
 	{
 		//Graphics2D g2=(Graphics2D) g;
 		//g2.fill(bound_shape);
@@ -103,8 +99,8 @@ public class Painter {
 		// Get the bounds of the string
 		Rectangle2D  bounds = g.getFont().getStringBounds (word.get_str(), context);
 		// Try to find an empty space of the string
-		Point position = search_space(bounds);
-		if(position.x > window.width) return 0;
+		Point position = searchSpace(bounds);
+		if(position.x > wordle.width) return 0;
 		
 		// Set the color of the string which is related to its position
 		g.setColor(new Color(
@@ -119,7 +115,7 @@ public class Painter {
 	}
 	
 	
-	private Point search_space(Rectangle2D bounds)
+	private Point searchSpace(Rectangle2D bounds)
 	{		
 		// The bounds of the string
 		int str_X = (int) (bounds.getMaxX() - bounds.getMinX()) + 10;
@@ -150,13 +146,13 @@ public class Painter {
 				}
 				if(min_size.y==font_min)break;
 			}
-			if (is_empty(x-str_X/2, y-str_Y/2, str_X, str_Y)) return new Point(x-str_X/2, y-str_Y/2);
+			if (isEmpty(x-str_X/2, y-str_Y/2, str_X, str_Y)) return new Point(x-str_X/2, y-str_Y/2);
 			left_bound=p_cen.x-loop;
 			right_bound=p_cen.x+loop;
 			low_bound=p_cen.y-loop;
 			up_bound=p_cen.y+loop;
 			if(low_bound<=str_Y/2)low_bound=step+str_Y/2;
-			if(up_bound >= window.height - str_Y / 2) up_bound = window.height - str_Y / 2;
+			if(up_bound >= wordle.height - str_Y / 2) up_bound = wordle.height - str_Y / 2;
 			if(x<=left_bound)
 			{
 				if(y>low_bound)y=y-step;
@@ -189,7 +185,7 @@ public class Painter {
 //				System.out.println("loop "+loop);
 			}
 			
-		}	while (x < window.width - str_X / 2);	
+		}	while (x < wordle.width - str_X / 2);	
 		
 		System.out.println("Error! No space available!");
 		
@@ -200,50 +196,50 @@ public class Painter {
 		
 		
 		// Some where outside the picture
-		return new Point(window.width + 100, window.height + 100);
+		return new Point(wordle.width + 100, wordle.height + 100);
 	}	
 	
-	private boolean is_empty(int x, int y, int str_X, int str_Y)
+	private boolean isEmpty(int x, int y, int str_X, int str_Y)
 	{
-		if (x + str_X >= window.width || y + str_Y >= window.height) return false;
+		if (x + str_X >= wordle.width || y + str_Y >= wordle.height) return false;
 		
 		int i = 0;
 		int j = 0;
 		
 		for (j = 0; j < str_X; j += 1)
-			if (!is_inshape(x + j, y + j * str_Y / str_X)) return false;	
+			if (!isInShape(x + j, y + j * str_Y / str_X)) return false;	
 
 		for (j = 0; j < str_X; j += 1)
-			if (!is_inshape(x + str_X - j, y + j * str_Y / str_X)) return false;		
+			if (!isInShape(x + str_X - j, y + j * str_Y / str_X)) return false;		
 		
 		i = str_Y / 2;
 		for (j = 0; j < str_X; j += 1)
-			if (!is_inshape(x + j, y + i)) return false;	
+			if (!isInShape(x + j, y + i)) return false;	
 		
 		j = str_X /2;
 		for (i = 0; i < str_Y; i += 1)
-			if (!is_inshape(x + j, y + i)) return false;		
+			if (!isInShape(x + j, y + i)) return false;		
 		
 		i = 0;
 		for (j = 0; j < str_X; j += 1)
-			if (!is_inshape(x + j, y + i)) return false;
+			if (!isInShape(x + j, y + i)) return false;
 		
 		i = str_Y;
 		for (j = 0; j < str_X; j += 1)
-			if (!is_inshape(x + j, y + i)) return false;	
+			if (!isInShape(x + j, y + i)) return false;	
 		
 		j = 0;
 		for (i = 0; i < str_Y; i += 1)
-			if (!is_inshape(x + j, y + i)) return false;
+			if (!isInShape(x + j, y + i)) return false;
 		
 		j = str_X;
 		for (i = 0; i < str_Y; i += 1)
-			if (!is_inshape(x + j, y + i)) return false;		
+			if (!isInShape(x + j, y + i)) return false;		
 
 		return true;
 	}
 
-	private boolean is_inshape(int a, int b)
+	private boolean isInShape(int a, int b)
 	{
 		if (img.getRGB(a, b) == Color.white.getRGB() && bound_shape.contains(a, b)) 
 		{

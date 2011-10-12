@@ -6,3 +6,5 @@
 *.jpg
 *.gif
 *.png
+*.class
+bin/
