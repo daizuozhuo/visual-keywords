@@ -15,14 +15,14 @@ import javax.imageio.ImageIO;
 public class Painter {
 	private Word[] words; // keywords to paint
 	private final static String fontfile = "res/font.ttf"; // Font
-	private static int height =1600; // height of the picture
+	private static int height =900; // height of the picture
 	private static int width = 1600; // width of the picture
 	Window window; // monitor window
 	private BufferedImage img;
 	Graphics g;
 	private final static FontRenderContext context = new FontRenderContext (null, false, false);
 	private static Point p_cen;private static final int max_num = 1500;
-	private static final int font_min = 44;
+	private static final int font_min = 30;
 	private static final int font_max = 255;
 	private static Point min_size=new Point(0,0);
 	private Bound bound;
@@ -266,6 +266,7 @@ public class Painter {
 		return true;
 	}
 
+	//check whether this point is white and in the shape
 	private boolean is_inshape(int a, int b)
 	{
 		if (img.getRGB(a, b) == Color.white.getRGB() && bound_shape.contains(a, b) ) {
