@@ -4,3 +4,7 @@
 *.out
 *.*~
 *.jpg
+*.gif
+*.png
+*.class
+bin/
