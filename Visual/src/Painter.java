@@ -15,13 +15,17 @@ public class Painter {
 	private BufferedImage img;
 	Graphics g;
 	private final static FontRenderContext context = new FontRenderContext (null, false, false);
+	
 	private static Point p_cen;
 	private static final int max_num = 220;
-	private static final int font_min = 45;
-	private static final int font_max = 60;
-	private static Point min_size=new Point(0,0);
+	private static final int font_min = 20;
+	private static final int font_max = 45;
+	private static Point min_size;
 	private Bound bound;
-	Shape bound_shape;
+	private Shape bound_shape;
+	
+	
+	private final boolean update; 
 	
 	private int max(int a,int b)
 	{
@@ -29,11 +33,12 @@ public class Painter {
 		else return b;
 	}
 	
-	public Painter(Word[] result, Wordle wordle) 
+	public Painter(Word[] result, Wordle wordle, boolean update) 
 	{
 		this.wordle = wordle;
 		img = new BufferedImage(wordle.width, wordle.height, BufferedImage.TYPE_INT_ARGB);
 		p_cen=new Point(wordle.width/2,wordle.height/2);
+		min_size  = new Point(0,0);
 		
 		//set shape
 		bound=new Bound(2,wordle.width,wordle.height);
@@ -43,6 +48,7 @@ public class Painter {
 		g = img.createGraphics();
 		g.fillRect(0, 0, wordle.width, wordle.height); // Fill the picture with white
 		wordle.setImg(img);
+		this.update = update;
 	}
 
 	public String paint()
@@ -57,12 +63,11 @@ public class Painter {
 		int drawn = 0;
 		setSize(); // Reset make is the size of the font
 
-
+		if (update) wordle.update(0, 0, wordle.width, wordle.height);
 		for (int i = 0; i < max_num && i < words.length; i++)
 		{
 			drawn += paintStr(words[i]); // paint the keywords one by one
-			System.out.println((i + 1 ) + " / " + words.length + " done.");
-			//wordle.update();
+			System.out.println((i + 1 ) + " / " + words.length + " done. Size: " + words[i].getSize());
 			total++;
 		}		
 		wordle.repaint();
@@ -76,13 +81,13 @@ public class Painter {
 	private void setSize() 
 	{
 		int sum = 0; // The sum of all the keywords found
-		for (int i = 0; i < words.length; i++) sum += words[i].get_count();
+		for (int i = 0; i < words.length; i++) sum += words[i].getCount();
 		for (int i = 0; i < words.length; i++) 
 		{
-			int temp = words[i].get_count() * 130 / sum + 150 - 5 * i; // Function to determine the font size
+			int temp = words[i].getCount() * 130 / sum + 150 - 5 * i; // Function to determine the font size
 			if (temp < font_min) temp = font_min; // Minimum size 
 			else if (temp > font_max) temp = font_max; // Maximum size
-			words[i].set_size(temp);
+			words[i].setSize(temp);
 		}
 		
 	}
@@ -93,14 +98,14 @@ public class Painter {
 		//Graphics2D g2=(Graphics2D) g;
 		//g2.fill(bound_shape);
 		// Set the font
-		Font font = new Font(fontfile, Font.BOLD, word.get_size());
+		Font font = new Font(fontfile, Font.BOLD, word.getSize());
 		g.setFont(font);
 		
 		// Get the bounds of the string
-		Rectangle2D  bounds = g.getFont().getStringBounds (word.get_str(), context);
+		Rectangle2D  bounds = g.getFont().getStringBounds (word.getStr(), context);
 		// Try to find an empty space of the string
 		Point position = searchSpace(bounds);
-		if(position.x > wordle.width) return 0;
+		if(position == null) return 0;
 		
 		// Set the color of the string which is related to its position
 		g.setColor(new Color(
@@ -110,9 +115,11 @@ public class Painter {
 				 ));
 		
 		// Draw the string
-		g.drawString(word.get_str(), (int) (position.x + 5 - bounds.getMinX()), (int) (position.y + 5 - bounds.getMinY()));
+		g.drawString(word.getStr(), (int) (position.x + 5 - bounds.getMinX()), (int) (position.y + 5 - bounds.getMinY()));
+		if(update) wordle.update(position.x, position.y, (int) (bounds.getMaxX() - bounds.getMinX()) + 10, (int) (bounds.getMaxY() - bounds.getMinY()) + 10);
 		return 1;	
 	}
+	
 	
 	
 	private Point searchSpace(Rectangle2D bounds)
@@ -146,7 +153,10 @@ public class Painter {
 				}
 				if(min_size.y==font_min)break;
 			}
-			if (isEmpty(x-str_X/2, y-str_Y/2, str_X, str_Y)) return new Point(x-str_X/2, y-str_Y/2);
+			if (isEmpty(x-str_X/2, y-str_Y/2, str_X, str_Y))
+			{
+				return new Point(x-str_X/2, y-str_Y/2);
+			}
 			left_bound=p_cen.x-loop;
 			right_bound=p_cen.x+loop;
 			low_bound=p_cen.y-loop;
@@ -196,7 +206,7 @@ public class Painter {
 		
 		
 		// Some where outside the picture
-		return new Point(wordle.width + 100, wordle.height + 100);
+		return null;
 	}	
 	
 	private boolean isEmpty(int x, int y, int str_X, int str_Y)

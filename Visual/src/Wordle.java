@@ -11,8 +11,8 @@ import javax.swing.JPanel;
 @SuppressWarnings("serial")
 public class Wordle extends JPanel{
 
-	public final int height = 900; // height of the picture
-	public final int width = 1600; // width of the picture
+	public final int height = 450; // height of the picture
+	public final int width = 800; // width of the picture
 	private BufferedImage img;
 	private BufferedImage fimg;
 	
@@ -36,8 +36,9 @@ public class Wordle extends JPanel{
 		this.img = img;
 	}
 		
-	public void set_background(BufferedImage bimg)
+	public void setBackground(BufferedImage bimg)
 	{
+		img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		if (bimg != null)
 		{
 			for(int i = 0; i < width; i++) 
@@ -55,7 +56,7 @@ public class Wordle extends JPanel{
 				}
 			}
 		}
-		img = fimg;
+		repaint();
 	}
 
 	public void saveImage() 
@@ -73,10 +74,10 @@ public class Wordle extends JPanel{
 		}    	
 	}
 
-	public void update() 
+	public void update(int x, int y, int str_X, int str_Y) 
 	{
 		Graphics g = this.getGraphics();
-		g.drawImage(img, 0, 0, width, height, this);	
+		g.drawImage(img, x, y, x + str_X, y + str_Y, x, y, x + str_X, y + str_Y, this);	
 	}
 
 }

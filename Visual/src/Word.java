@@ -18,11 +18,11 @@ public class Word implements Comparable<Word> {
 		this.size = 15;
 	}
 	
-	public String get_str() {return str;}
-	public int get_count() {return count;}
-	public int get_size() {return size;}
+	public String getStr() {return str;}
+	public int getCount() {return count;}
+	public int getSize() {return size;}
 	public void hit() {count++;} // Found again
-	public void set_size(int i) {size = i;}
+	public void setSize(int i) {size = i;}
 
 	public void print() 
 	{
