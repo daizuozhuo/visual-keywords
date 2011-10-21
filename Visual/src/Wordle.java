@@ -11,8 +11,8 @@ import javax.swing.JPanel;
 @SuppressWarnings("serial")
 public class Wordle extends JPanel{
 
-	public final int height = 450; // height of the picture
-	public final int width = 800; // width of the picture
+	public final int height = 768; // height of the picture
+	public final int width = 1024; // width of the picture
 	private BufferedImage img;
 	private BufferedImage fimg;
 	

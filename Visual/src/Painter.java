@@ -6,6 +6,9 @@ import java.awt.Shape;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.Date;
 
 public class Painter {
@@ -17,13 +20,14 @@ public class Painter {
 	private final static FontRenderContext context = new FontRenderContext (null, false, false);
 	
 	private static Point p_cen;
-	private static final int max_num = 220;
+	private static final int max_num = 2200;
 	private static final int font_min = 20;
-	private static final int font_max = 45;
+	private static final int font_max = 20;
 	private static Point min_size;
 	private Bound bound;
 	private Shape bound_shape;
-	
+	Font font;
+	Font fontBase;
 	
 	private final boolean update; 
 	
@@ -41,7 +45,7 @@ public class Painter {
 		min_size  = new Point(0,0);
 		
 		//set shape
-		bound=new Bound(2,wordle.width,wordle.height);
+		bound=new Bound(5,wordle.width,wordle.height);
 		bound_shape=bound.get_shape();
 		
 		words = result;
@@ -49,6 +53,13 @@ public class Painter {
 		g.fillRect(0, 0, wordle.width, wordle.height); // Fill the picture with white
 		wordle.setImg(img);
 		this.update = update;
+		try {
+			InputStream myStream = new BufferedInputStream(new FileInputStream(fontfile));
+			fontBase = Font.createFont(Font.TRUETYPE_FONT, myStream);
+			//font = new Font(, Font.PLAIN, word.getSize());
+	      } catch (Exception ex) {
+	        ex.printStackTrace();
+	      }
 	}
 
 	public String paint()
@@ -66,7 +77,14 @@ public class Painter {
 		if (update) wordle.update(0, 0, wordle.width, wordle.height);
 		for (int i = 0; i < max_num && i < words.length; i++)
 		{
-			drawn += paintStr(words[i]); // paint the keywords one by one
+			if (i > 5)
+			{
+				drawn += paintStr(words[i], true); // paint the keywords one by one				
+			}
+			else
+			{
+				drawn += paintStr(words[i], false); // paint the keywords one by one				
+			}
 			System.out.println((i + 1 ) + " / " + words.length + " done. Size: " + words[i].getSize());
 			total++;
 		}		
@@ -92,41 +110,56 @@ public class Painter {
 		
 	}
 	
-
-	private int paintStr(Word word)
+	
+	private int paintStr(Word word, boolean checkNear)
 	{
-		//Graphics2D g2=(Graphics2D) g;
-		//g2.fill(bound_shape);
 		// Set the font
-		Font font = new Font(fontfile, Font.BOLD, word.getSize());
+		try {
+			font = fontBase.deriveFont(Font.PLAIN, word.getSize());
+	      } catch (Exception ex) {
+	        ex.printStackTrace();
+	      }
 		g.setFont(font);
 		
 		// Get the bounds of the string
 		Rectangle2D  bounds = g.getFont().getStringBounds (word.getStr(), context);
 		// Try to find an empty space of the string
-		Point position = searchSpace(bounds);
-		if(position == null) return 0;
+		Point position;	
+		if (checkNear)
+		{
+			position = searchSpace(bounds, true);
+			if(position == null) 
+			{
+				position = searchSpace(bounds, false);	
+				if(position == null) return 0;
+			}	
+		}
+		else
+		{
+			position = searchSpace(bounds, false);				
+		}
 		
 		// Set the color of the string which is related to its position
-		g.setColor(new Color(
-				 max( position.x/5>220 ? 220 : position.x/5 , 100 ),
-				 max( position.y/5>220 ? 220 : position.y/5 , 100 ),
-				 max( (position.x+position.y)/10>220 ? 220 : (position.x+position.y)/10 , 100 )
-				 ));
+//		g.setColor(new Color(
+//				 max( position.x/5>220 ? 220 : position.x/5 , 100 ),
+//				 max( position.y/5>220 ? 220 : position.y/5 , 100 ),
+//				 max( (position.x+position.y)/10>220 ? 220 : (position.x+position.y)/10 , 100 )
+//				 ));
+		
+		g.setColor(new Color((int)(Math.random() * 15 + 20), (int)(Math.random() * 25 + 109), (int)(Math.random() * 45 + 180)));
 		
 		// Draw the string
-		g.drawString(word.getStr(), (int) (position.x + 5 - bounds.getMinX()), (int) (position.y + 5 - bounds.getMinY()));
-		if(update) wordle.update(position.x, position.y, (int) (bounds.getMaxX() - bounds.getMinX()) + 10, (int) (bounds.getMaxY() - bounds.getMinY()) + 10);
+		g.drawString(word.getStr(), (int) (position.x - bounds.getMinX()), (int) (position.y - bounds.getMinY()));
+		if(update) wordle.update(position.x, position.y, (int) (bounds.getMaxX() - bounds.getMinX()), (int) (bounds.getMaxY() - bounds.getMinY()));
 		return 1;	
 	}
 	
-	
-	
-	private Point searchSpace(Rectangle2D bounds)
+		
+	private Point searchSpace(Rectangle2D bounds, boolean checkNear)
 	{		
 		// The bounds of the string
-		int str_X = (int) (bounds.getMaxX() - bounds.getMinX()) + 10;
-		int str_Y = (int) (bounds.getMaxY() - bounds.getMinY()) + 10;
+		int str_X = (int) (bounds.getMaxX() - bounds.getMinX());
+		int str_Y = (int) (bounds.getMaxY() - bounds.getMinY());
 
 		int loop=1;
 		int step=(int)(0.1*str_Y);
@@ -153,7 +186,7 @@ public class Painter {
 				}
 				if(min_size.y==font_min)break;
 			}
-			if (isEmpty(x-str_X/2, y-str_Y/2, str_X, str_Y))
+			if (isEmpty(x-str_X/2, y-str_Y/2, str_X, str_Y, checkNear))
 			{
 				return new Point(x-str_X/2, y-str_Y/2);
 			}
@@ -209,7 +242,7 @@ public class Painter {
 		return null;
 	}	
 	
-	private boolean isEmpty(int x, int y, int str_X, int str_Y)
+	private boolean isEmpty(int x, int y, int str_X, int str_Y, boolean checkNear)
 	{
 		if (x + str_X >= wordle.width || y + str_Y >= wordle.height) return false;
 		
@@ -245,13 +278,92 @@ public class Painter {
 		j = str_X;
 		for (i = 0; i < str_Y; i += 1)
 			if (!isInShape(x + j, y + i)) return false;		
+		
+		//		g.drawLine(x, y, x+str_X, y);
+//		g.drawLine(x, y, x, y+str_Y);
+//		g.drawLine(x+str_X, y, x+str_X, y+str_Y);
+//		g.drawLine(x+str_X, y+str_Y, x, y+str_Y);
+		// not too far away from other words
+		
+		//if is the first word;
+		if (!checkNear)
+		{
+			return true;
+		}
+		x -= 2;
+		y -= 2;
+		str_X += 4;
+		str_Y += 4;
+		i = 0;
+		int count = 0;
+		for (j = 0; j < str_X; j += 1)
+			if (isNearWord(x + j, y + i)) 
+			{
+			count ++;
+			break;
+			}
+		
+		i = str_Y;
+		for (j = 0; j < str_X; j += 1)
+			if (isNearWord(x + j, y + i)) 
+			{
+			count ++;
+			if (count == 2)
+			{
+//				g.drawOval(x+j,y+i, 3, 3);
+				return true;
+			}
+			break;
+			}
+		
+		j = 0;
+		for (i = 0; i < str_Y; i += 1)
+			if (isNearWord(x + j, y + i)) 
+			{
+			count ++;
+			if (count == 2)
+			{
+//				g.drawOval(x+j,y+i, 3, 3);
+				return true;
+			}
+			break;
+			}
+		
+		j = str_X;
+		for (i = 0; i < str_Y; i += 1)
+			if (isNearWord(x + j, y + i)) 
+			{
+			count ++;
+			if (count == 2)
+			{
+//				g.drawOval(x+j,y+i, 3, 3);
+				return true;
+			}
+			break;
+			}	
 
-		return true;
+		return false;
 	}
 
 	private boolean isInShape(int a, int b)
 	{
 		if (img.getRGB(a, b) == Color.white.getRGB() && bound_shape.contains(a, b)) 
+		{
+			return true;
+		} 
+		else 
+		{
+			return false;
+		}
+	}
+	
+	private boolean isNearWord(int a, int b)
+	{
+		if (!bound_shape.contains(a, b))
+		{
+			return true;
+		}
+		if (img.getRGB(a, b) != Color.white.getRGB()) 
 		{
 			return true;
 		} 
