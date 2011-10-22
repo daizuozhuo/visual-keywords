@@ -1,4 +1,3 @@
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -11,14 +10,15 @@ import javax.swing.JPanel;
 @SuppressWarnings("serial")
 public class Wordle extends JPanel{
 
-	public final int height = 768; // height of the picture
-	public final int width = 1024; // width of the picture
+	private final int height; // height of the picture
+	private final int width; // width of the picture
 	private BufferedImage img;
-	private BufferedImage fimg;
 	
 	
-	public Wordle()
+	public Wordle(int width, int height)
 	{
+		this.width = width;
+		this.height = height;
 		setSize(width, height);
 		setPreferredSize(getSize());
 		setVisible(true);
@@ -32,32 +32,10 @@ public class Wordle extends JPanel{
 	
 	public void setImg(BufferedImage img)
 	{
-		this.fimg = img;
 		this.img = img;
 	}
 		
-	public void setBackground(BufferedImage bimg)
-	{
-		img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-		if (bimg != null)
-		{
-			for(int i = 0; i < width; i++) 
-			{
-				for(int j = 0; j < height; j++) 
-				{
-					if(fimg.getRGB(i,j) == Color.white.getRGB())
-					{
-						img.setRGB(i, j, bimg.getRGB(i * bimg.getWidth() / width, j * bimg.getHeight() / height));
-					}
-					else 
-					{
-						img.setRGB(i, j, fimg.getRGB(i, j));
-					}
-				}
-			}
-		}
-		repaint();
-	}
+
 
 	public void saveImage() 
 	{
@@ -78,6 +56,13 @@ public class Wordle extends JPanel{
 	{
 		Graphics g = this.getGraphics();
 		g.drawImage(img, x, y, x + str_X, y + str_Y, x, y, x + str_X, y + str_Y, this);	
+//		Graphics2D g2d = (Graphics2D)g;		
+//		AffineTransform affineTransform = new AffineTransform();
+//		//set the translation to the mid of the component
+//		affineTransform.rotate(Math.toRadians(45), width/2, height/2);
+//		//draw the image using the AffineTransform
+//		g.drawImage(img, affineTransform, this); 
+//		g.drawImage(img, affineTransform, this); 
 	}
 
 }

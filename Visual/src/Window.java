@@ -5,8 +5,9 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Vector;
 
 import javax.imageio.ImageIO;
 import javax.swing.JCheckBoxMenuItem;
@@ -21,7 +22,7 @@ import javax.swing.JOptionPane;
 @SuppressWarnings("serial")
 public class Window extends JFrame {
 
-	private Word[] result;
+	private Vector<Word> result;
 	private JMenuBar menuBar;
 	private JMenu menuFile;
 	private JMenu menuPreference;
@@ -31,6 +32,9 @@ public class Window extends JFrame {
 	private JMenuItem menuItem_exit;
 	private JCheckBoxMenuItem menuItem_update;
 	private Wordle wordle;
+	private Painter painter;
+	private final int height = 768; // height of the picture
+	private final int width = 1024; // width of the picture
 	
 	public Window(String title)
 	{
@@ -39,7 +43,7 @@ public class Window extends JFrame {
 		setVisible(true);
 		setIconImage(Toolkit.getDefaultToolkit().getImage("res/icon.jpg"));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		wordle = new Wordle();
+		wordle = new Wordle(width, height);
 		setContentPane(wordle);
 		setResizable(false);
 	}
@@ -73,14 +77,16 @@ public class Window extends JFrame {
 		}
         
         // Sort the words found
-        Collection<Word> c = catcher.get_values();        
-        result =  (Word[]) c.toArray(new Word[c.size()]);
-        Arrays.sort(result);
+        Collection<Word> c = catcher.get_values();  
+        result = new Vector<Word>(c);
+        //result =  (Word[]) c.toArray(new Word[c.size()]);
+        Collections.sort(result);
         
-       	for (int i = 0 ; i < result.length; i++) result[i].print();
-       	System.out.println("------------------ " + result.length + " keywords found ------------------");
+       	for (int i = 0 ; i < result.size(); i++) result.get(i).print();
+       	System.out.println("------------------ " + result.size() + " keywords found ------------------");
 		setMenubar();
 		pack();
+       	painter = new Painter(result, width, height, menuItem_update.getState());
 	}
 	
 	//set menu;
@@ -144,10 +150,10 @@ public class Window extends JFrame {
 	
 	private void start()
 	{
-       	Painter painter = new Painter(result, wordle, menuItem_update.getState());
 
-   		JOptionPane.showMessageDialog(null, painter.paint(), "Message", 1);
-
+   		JOptionPane.showMessageDialog(null, painter.paint(), "Message", 1/*, new ImageIcon(Toolkit.getDefaultToolkit().getImage("res/icon.jpg"))*/);
+   		wordle.setImg(painter.getImg());
+   		wordle.repaint();
 	}
 	
 	public void choose_backimg()
@@ -161,7 +167,7 @@ public class Window extends JFrame {
 	       try 
 	       {
 	    	   BufferedImage bimg = ImageIO.read(file);
-	    	   wordle.setBackground(bimg);
+	    	   painter.setBackground(bimg);
 	       } 
 	       catch (IOException e)
 	       {
