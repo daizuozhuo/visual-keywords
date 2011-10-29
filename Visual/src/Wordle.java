@@ -1,4 +1,5 @@
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -35,34 +36,23 @@ public class Wordle extends JPanel{
 		this.img = img;
 	}
 		
-
-
-	public void saveImage() 
+	public boolean imageUpdate(Image img, int flags, int x, int y, int w, int h) 
 	{
-		File outputfile = new File("res/output.gif");  
-        try
-        {
-			ImageIO.write(img, "gif", outputfile);
-			System.out.println("Save Successful!"); // Save the picture
-		} 
-        catch (IOException e) 
+		if ((flags & ALLBITS) != 0)
 		{
-			System.out.println("Save Error!");
-			e.printStackTrace();
-		}    	
+			Graphics g = this.getGraphics();
+			g.drawImage(img, x, y, x + w, y + h, x, y, x + w, y + h, this);
+		}
+		return (flags & ALLBITS) == 0;
 	}
 
-	public void update(int x, int y, int str_X, int str_Y) 
+	public int saveImage(String file) throws IOException 
 	{
-		Graphics g = this.getGraphics();
-		g.drawImage(img, x, y, x + str_X, y + str_Y, x, y, x + str_X, y + str_Y, this);	
-//		Graphics2D g2d = (Graphics2D)g;		
-//		AffineTransform affineTransform = new AffineTransform();
-//		//set the translation to the mid of the component
-//		affineTransform.rotate(Math.toRadians(45), width/2, height/2);
-//		//draw the image using the AffineTransform
-//		g.drawImage(img, affineTransform, this); 
-//		g.drawImage(img, affineTransform, this); 
+
+		File outputfile = new File(file);  
+		if (img == null) return 1;
+		ImageIO.write(img, "gif", outputfile);
+		return 0;
 	}
 
 }

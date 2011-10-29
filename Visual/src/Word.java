@@ -11,8 +11,8 @@ public class Word implements Comparable<Word> {
 		this.count = 1;
 		this.str  = str;
 		this.size = 15;
-		this.x = 0;
-		this.y = 0;
+		this.x = -1;
+		this.y = -1;
 	}
 	
 	public String getStr() {return str;}
@@ -21,8 +21,8 @@ public class Word implements Comparable<Word> {
 	public void hit() {count++;} // Found again
 	public void setSize(int i) {size = i;}
 	public void setPoint(int x, int y) {this.x = x; this.y = y;}
-	public int x() {return x;}
-	public int y() {return y;}
+	public int X() {return x;}
+	public int Y() {return y;}
 	
 	public void print() 
 	{

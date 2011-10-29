@@ -7,6 +7,7 @@ import java.awt.font.FontRenderContext;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -21,7 +22,7 @@ public class Painter {
 	private final static FontRenderContext context = new FontRenderContext (null, false, false);
 	
 	private static Point p_cen;
-	private static final int max_num = 500;
+	private static final int max_num = 50;
 	private static final int font_min = 20;
 	private static final int font_max = 50;
 	private static Point min_size;
@@ -33,6 +34,9 @@ public class Painter {
 	private final int height; // height of the picture
 	private final int width; // width of the picture	
 	private final boolean update; 
+	private ImageObserver observer;
+	
+	private boolean done; // if the paint is done and only need repaint;
 	
 //	private int max(int a,int b)
 //	{
@@ -40,14 +44,16 @@ public class Painter {
 //		else return b;
 //	}
 	
-	public Painter(Vector<Word> result, int width, int height, boolean update) 
+	public Painter(Vector<Word> result, int width, int height, boolean update, ImageObserver observer) 
 	{
 		this.width = width;
 		this.height = height;
 		this.update = update;
+		this.observer = observer;
+		done = false;
 		img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-		p_cen=new Point(width / 2, height / 2);
-		min_size  = new Point(0,0);
+		p_cen = new Point(width / 2, height / 2);
+		min_size = new Point(0,0);
 		
 		//set shape
 		bound=new Bound(5, width, height);
@@ -69,6 +75,8 @@ public class Painter {
 
 	public String paint()
 	{
+		if (done) repaint();
+		g.fillRect(0, 0, width, height); // Fill the picture with white
 		long startTime = new Date().getTime();
 		if (words.size() == 0)
 		{
@@ -79,35 +87,31 @@ public class Painter {
 		int drawn = 0;
 		setSize(); // Reset make is the size of the font
 
-		//if (update) wordle.update(0, 0, width, height);
+		if (update) observer.imageUpdate(img, ImageObserver.ALLBITS, 0, 0, width, height);
 		
 		for (int i = 0; i < max_num && i < words.size(); i++)
 		{
 
-			if (paintStr(i, i > 5 ? 2 : 0) == 0)
-			{
-				words.remove(i);
-				i--;
-			}
-			else
-			{
-				drawn ++;
-			}
+			drawn += paintStr(i, i > 5 ? 2 : 0);
 			System.out.println((i + 1 ) + " / " + words.size() + " done. Size: " + words.get(i).getSize());
 			total++;
 		}		
-		for (int i = max_num; i < words.size(); i++)
-		{
-			// remove the rest of the array;
-			words.remove(i);
-			i--;
-		}
-		//wordle.repaint();
 		System.out.println("Paint Successful!");   
 		long endTime = new Date().getTime();
+		done = true;
 		return drawn + " / " + total + " drawn. \nTime used: " + (endTime - startTime) / 1000 + "." + (endTime - startTime) % 1000 + " s.";
 	}
 	
+	private void repaint() 
+	{
+		for (int i = 0; i < words.size(); i++)
+		{
+			if (words.get(i).X() == -1) continue;
+			g.drawString(words.get(i).getStr(), words.get(i).X(), words.get(i).Y());
+		}		
+		observer.imageUpdate(img, ImageObserver.ALLBITS, 0, 0, width, height);
+	}
+
 	public BufferedImage getImg()
 	{
 		return img;
@@ -170,7 +174,7 @@ public class Painter {
 //		g.rotate(0.1, width / 2, height / 2); 
 		g.drawString(words.get(i).getStr(), x, y);
 		words.get(i).setPoint(x, y);
-		//if(update) wordle.update(position.x, position.y, (int) (bounds.getMaxX() - bounds.getMinX()), (int) (bounds.getMaxY() - bounds.getMinY()));
+		if (update) observer.imageUpdate(img, ImageObserver.ALLBITS, position.x, position.y, (int) (bounds.getMaxX() - bounds.getMinX()), (int) (bounds.getMaxY() - bounds.getMinY()));
 		return 1;	
 	}
 			
@@ -405,21 +409,19 @@ public class Painter {
 
 	public void setBackground(BufferedImage bimg)
 	{
-		img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-//		if (bimg != null)
+		g.drawImage(bimg, 0, 0, width, height, 0, 0, bimg.getWidth(), bimg.getHeight(), null);
+		repaint();
+//		for(int i = 0; i < width; i++) 
 //		{
-//			for(int i = 0; i < width; i++) 
+//			for(int j = 0; j < height; j++) 
 //			{
-//				for(int j = 0; j < height; j++) 
+//				if(fimg.getRGB(i,j) == Color.white.getRGB())
 //				{
-//					if(fimg.getRGB(i,j) == Color.white.getRGB())
-//					{
-//						img.setRGB(i, j, bimg.getRGB(i * bimg.getWidth() / width, j * bimg.getHeight() / height));
-//					}
-//					else 
-//					{
-//						img.setRGB(i, j, fimg.getRGB(i, j));
-//					}
+//					img.setRGB(i, j, bimg.getRGB(i * bimg.getWidth() / width, j * bimg.getHeight() / height));
+//				}
+//				else 
+//				{
+//					img.setRGB(i, j, fimg.getRGB(i, j));
 //				}
 //			}
 //		}

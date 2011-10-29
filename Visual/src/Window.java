@@ -86,7 +86,7 @@ public class Window extends JFrame {
        	System.out.println("------------------ " + result.size() + " keywords found ------------------");
 		setMenubar();
 		pack();
-       	painter = new Painter(result, width, height, menuItem_update.getState());
+       	painter = new Painter(result, width, height, menuItem_update.getState(), wordle);
 	}
 	
 	//set menu;
@@ -127,7 +127,7 @@ public class Window extends JFrame {
 		menuItem_save.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e)
             {
-                wordle.saveImage();
+                saveImage();
             }
         });   
 		
@@ -150,7 +150,6 @@ public class Window extends JFrame {
 	
 	private void start()
 	{
-
    		JOptionPane.showMessageDialog(null, painter.paint(), "Message", 1/*, new ImageIcon(Toolkit.getDefaultToolkit().getImage("res/icon.jpg"))*/);
    		wordle.setImg(painter.getImg());
    		wordle.repaint();
@@ -160,13 +159,19 @@ public class Window extends JFrame {
 	{
 		JFileChooser chooser = new JFileChooser();
 	    int returnVal = chooser.showOpenDialog(this);
-	    if(returnVal == JFileChooser.APPROVE_OPTION) {
+	    if(returnVal == JFileChooser.APPROVE_OPTION)
+	    {
 	       System.out.println("You chose to open this file: " +
 	            chooser.getSelectedFile().getName());
 	       File file=chooser.getSelectedFile();
 	       try 
 	       {
 	    	   BufferedImage bimg = ImageIO.read(file);
+	    	   if (bimg == null) 
+	    	   {
+	    	   		JOptionPane.showMessageDialog(null, "Invalid image!", "Error!", 1);
+	    	   		return;	    		   
+	    	   }
 	    	   painter.setBackground(bimg);
 	       } 
 	       catch (IOException e)
@@ -176,5 +181,29 @@ public class Window extends JFrame {
 	    }
 	}
 
-
+	public void saveImage()
+	{
+		JFileChooser chooser = new JFileChooser();
+	    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+	    int flag = chooser.showSaveDialog(this);
+	    if (flag == JFileChooser.APPROVE_OPTION)
+	    {
+	    	String path = chooser.getSelectedFile().getAbsolutePath() + "/output.gif";
+	    	try
+	    	{
+	    		if (wordle.saveImage(path) == 1)  // Save the picture
+	    		{
+			        JOptionPane.showMessageDialog(null, "Cannot save empty image!", "Save Image", 1);
+			        return;	    			
+	    		}
+		        JOptionPane.showMessageDialog(null, "Successfully saved as " + path, "Save Image", 1);
+	    	} 
+	    	catch (IOException e2)
+	    	{
+	        JOptionPane.showMessageDialog(null, "Save Error!", "Save Image", 1);
+	        e2.printStackTrace();
+	    	}     
+	    }
+	}
+	
 }
