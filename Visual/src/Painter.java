@@ -4,6 +4,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Shape;
 import java.awt.font.FontRenderContext;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -34,15 +35,10 @@ public class Painter {
 	private final int height; // height of the picture
 	private final int width; // width of the picture	
 	private final boolean update; 
+	private boolean is_rotate;
 	private ImageObserver observer;
+	private boolean done;
 	
-	private boolean done; // if the paint is done and only need repaint;
-	
-//	private int max(int a,int b)
-//	{
-//		if(a>=b)return a;
-//		else return b;
-//	}
 	
 	public Painter(Vector<Word> result, int width, int height, boolean update, ImageObserver observer) 
 	{
@@ -50,7 +46,7 @@ public class Painter {
 		this.height = height;
 		this.update = update;
 		this.observer = observer;
-		done = false;
+	    done = false;
 		img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		p_cen = new Point(width / 2, height / 2);
 		min_size = new Point(0,0);
@@ -185,17 +181,37 @@ public class Painter {
 		}
 		
 		setColor(i);// Set the color of the string which is related to its position
-		
+		if(Math.random()>0.5) {
+			is_rotate=true;
+		} else {
+			is_rotate=false;
+		}
 		// Draw the string
 		int x = (int) (position.x - bounds.getMinX());
 		int y = (int) (position.y - bounds.getMinY());
-
-//		g.rotate(0.1, width / 2, height / 2); 
-		g.drawString(words.get(i).getStr(), x, y);
+		//int str_X = (int) (bounds.getMaxX()-bounds.getMinX());
+		//int str_Y = (int) (bounds.getMaxY()-bounds.getMinY());
+		if(is_rotate) {	
+			//g.drawRect(position.x, position.y, str_Y,str_X);
+			TextShape textshape = new TextShape(font,words.get(i).getStr());
+			Shape draw_word=textshape.getShape();
+			//System.out.println(bounds.getMinX());
+			AffineTransform tx = new AffineTransform();
+			tx.setToTranslation(position.x,position.y );
+			draw_word=tx.createTransformedShape(draw_word);
+			AffineTransform ax = new AffineTransform();
+			ax.rotate(Math.PI/2,position.x,position.y);
+			draw_word=ax.createTransformedShape(draw_word);
+			g.fill(draw_word);
+		} else {
+			//g.drawRect(position.x, position.y, str_X,str_Y);
+			g.drawString(words.get(i).getStr(), x, y);
+		}
 		words.get(i).setPoint(x, y);
 		if (update) observer.imageUpdate(img, ImageObserver.ALLBITS, position.x, position.y, (int) (bounds.getMaxX() - bounds.getMinX()), (int) (bounds.getMaxY() - bounds.getMinY()));
 		return 1;	
 	}
+
 	
 	private void setColor(int i)
 	{
@@ -207,12 +223,19 @@ public class Painter {
 //		 ));
 	}
 			
+
 	private Point searchSpace(Rectangle2D bounds, int sides)
 	{		
 		// The bounds of the string
-		int str_X = (int) (bounds.getMaxX() - bounds.getMinX());
-		int str_Y = (int) (bounds.getMaxY() - bounds.getMinY());
-
+		int str_X;
+		int str_Y;
+		if(is_rotate) {
+			str_Y = (int) (bounds.getMaxX() - bounds.getMinX());
+			str_X = (int) (bounds.getMaxY() - bounds.getMinY());
+		} else {
+			str_X = (int) (bounds.getMaxX() - bounds.getMinX());
+			str_Y = (int) (bounds.getMaxY() - bounds.getMinY());
+		}
 		int loop=1;
 		int step=(int)(0.1*str_Y);
 		if(step<1)step=1;
@@ -228,9 +251,6 @@ public class Painter {
 		
 		do
 		{	
-			
-			//System.out.println(str_X+" "+str_Y+" "+min_size+" "+step);
-			
 			if(min_size.x!=0){
 				if(str_X>=min_size.x&&str_Y>=min_size.y)
 				{
