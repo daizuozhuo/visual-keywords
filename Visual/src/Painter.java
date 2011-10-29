@@ -173,7 +173,7 @@ public class Painter {
 		int x = (int) (position.x - bounds.getMinX());
 		int y = (int) (position.y - bounds.getMinY());
 
-		g.rotate(5, width / 2, height / 2); 
+		//g.rotate(5, width / 2, height / 2); 
 		g.drawString(words.get(i).getStr(), x, y);
 		words.get(i).setPoint(x, y);
 		//if(update) wordle.update(position.x, position.y, (int) (bounds.getMaxX() - bounds.getMinX()), (int) (bounds.getMaxY() - bounds.getMinY()));
