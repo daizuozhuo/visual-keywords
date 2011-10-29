@@ -157,7 +157,11 @@ public class Painter {
 			
 			// Get the bounds of the string
 			bounds = g.getFont().getStringBounds (words.get(i).getStr(), context);
-			
+			if(Math.random()>0.5) {
+				is_rotate=true;
+			} else {
+				is_rotate=false;
+			}
 			for (int j = sides; j > -1; j--)
 			{
 				position = searchSpace(bounds, j);
@@ -181,32 +185,24 @@ public class Painter {
 		}
 		
 		setColor(i);// Set the color of the string which is related to its position
-		if(Math.random()>0.5) {
-			is_rotate=true;
-		} else {
-			is_rotate=false;
-		}
 		// Draw the string
 		int x = (int) (position.x - bounds.getMinX());
 		int y = (int) (position.y - bounds.getMinY());
 		//int str_X = (int) (bounds.getMaxX()-bounds.getMinX());
 		//int str_Y = (int) (bounds.getMaxY()-bounds.getMinY());
+		TextShape textshape = new TextShape(font,words.get(i).getStr());
+		Shape draw_word=textshape.getShape();
+		AffineTransform tx = new AffineTransform();
+		tx.setToTranslation(position.x,position.y );
+		draw_word=tx.createTransformedShape(draw_word);
 		if(is_rotate) {	
 			//g.drawRect(position.x, position.y, str_Y,str_X);
-			TextShape textshape = new TextShape(font,words.get(i).getStr());
-			Shape draw_word=textshape.getShape();
-			//System.out.println(bounds.getMinX());
-			AffineTransform tx = new AffineTransform();
-			tx.setToTranslation(position.x,position.y );
-			draw_word=tx.createTransformedShape(draw_word);
+			//System.out.println(bounds.getMinX());		
 			AffineTransform ax = new AffineTransform();
 			ax.rotate(Math.PI/2,position.x,position.y);
 			draw_word=ax.createTransformedShape(draw_word);
-			g.fill(draw_word);
-		} else {
-			//g.drawRect(position.x, position.y, str_X,str_Y);
-			g.drawString(words.get(i).getStr(), x, y);
 		}
+		g.fill(draw_word);
 		words.get(i).setPoint(x, y);
 		if (update) observer.imageUpdate(img, ImageObserver.ALLBITS, position.x, position.y, (int) (bounds.getMaxX() - bounds.getMinX()), (int) (bounds.getMaxY() - bounds.getMinY()));
 		return 1;	
