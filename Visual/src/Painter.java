@@ -19,8 +19,7 @@ public class Painter {
 	private final static String fontfile = "res/font.ttf"; // Font
 	private BufferedImage img;
 	Graphics2D g;
-	private final static FontRenderContext context = new FontRenderContext (null, false, false);
-	private Vector<Shape> shapes; 
+	private final static FontRenderContext context = new FontRenderContext (null, false, false); 
 	private static Point p_cen;
 	private static final int max_num = 100;
 	private static final int font_min = 20;
@@ -28,6 +27,7 @@ public class Painter {
 	private static Point min_size;
 	private Bound bound;
 	private Shape bound_shape;
+	private String color_style;
 	Font font;
 	Font fontBase;
 
@@ -49,7 +49,7 @@ public class Painter {
 		img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		p_cen = new Point(width / 2, height / 2);
 		min_size = new Point(0,0);
-		shapes = new Vector<Shape>(max_num);
+		color_style="warm";
 		//set shape
 		bound=new Bound(5, width, height);
 		bound_shape=bound.get_shape();
@@ -198,7 +198,7 @@ public class Painter {
 			}
 		}
 		
-		setColor(i);// Set the color of the string which is related to its position
+		setColor(position);// Set the color of the string which is related to its position
 		// Draw the string
 		int x = (int) (position.x - bounds.getMinX());
 		int y = (int) (position.y - bounds.getMinY());
@@ -214,14 +214,20 @@ public class Painter {
 		return 1;	
 	}
 
-	private void setColor(int i)
+	public int max (int a, int b) {
+		return a > b ? a:b;
+	}
+	private void setColor(Point position)
 	{
-		g.setColor(new Color((int)(Math.random() * 15 + 20), (int)(Math.random() * 25 + 109), (int)(Math.random() * 45 + 180), 180));		
-//		g.setColor(new Color(
-//		 max( position.x/5>220 ? 220 : position.x/5 , 100 ),
-//		 max( position.y/5>220 ? 220 : position.y/5 , 100 ),
-//		 max( (position.x+position.y)/10>220 ? 220 : (position.x+position.y)/10 , 100 )
-//		 ));
+		if(color_style == "warm") {
+			System.out.println("warm");
+			g.setColor(new Color(
+					 max( position.x/5>250 ? 250 : position.x/5 , 160 ),
+					 max( position.y/5>100 ? 100 : position.y/5 , 50 ),
+					 max( (position.x+position.y)/10>250 ? 250 : (position.x+position.y)/10 , 120 )
+					 ));
+		}
+		//g.setColor(new Color((int)(Math.random() * 15 + 20), (int)(Math.random() * 25 + 109), (int)(Math.random() * 45 + 180), 180));				
 	}
 			
 
@@ -464,5 +470,10 @@ public class Painter {
 //				}
 //			}
 //		}
+	}
+
+	public void setColorStyle(String str) {
+		color_style=str;
+		
 	}
 }
