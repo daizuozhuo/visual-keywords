@@ -20,7 +20,7 @@ public class Painter {
 	private BufferedImage img;
 	Graphics2D g;
 	private final static FontRenderContext context = new FontRenderContext (null, false, false);
-	
+	private Vector<Shape> shapes; 
 	private static Point p_cen;
 	private static final int max_num = 100;
 	private static final int font_min = 20;
@@ -49,7 +49,7 @@ public class Painter {
 		img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		p_cen = new Point(width / 2, height / 2);
 		min_size = new Point(0,0);
-		
+		shapes = new Vector<Shape>(max_num);
 		//set shape
 		bound=new Bound(5, width, height);
 		bound_shape=bound.get_shape();
@@ -137,10 +137,14 @@ public class Painter {
 	
 	private int paintStr(int i, int sides)
 	{
+		
 		// Try to find an empty space of the string
 		Point position = null;	
 		Rectangle2D  bounds = null;
+		Shape draw_word = null;
+		AffineTransform tx = null;
 		boolean found = false;
+		
 		while (!found)
 		{
 			// Set the font
@@ -153,14 +157,25 @@ public class Painter {
 				ex.printStackTrace();
 			}
 			g.setFont(font);
-			
-			// Get the bounds of the string
-			bounds = g.getFont().getStringBounds (words.get(i).getStr(), context);
+			TextShape textshape = new TextShape(font,words.get(i).getStr());
+			draw_word=textshape.getShape();
+			tx = new AffineTransform();
 			if(Math.random()>0.5) {
 				is_rotate=true;
 			} else {
-				is_rotate=false;
+				is_rotate=true;
 			}
+			if(is_rotate) {	
+				//g.drawRect(position.x, position.y, str_Y,str_X);
+				
+				tx.setToTranslation(0,0 );
+				draw_word=tx.createTransformedShape(draw_word);
+				AffineTransform ax = new AffineTransform();
+				ax.rotate(Math.PI/6,0,0);
+				draw_word=ax.createTransformedShape(draw_word);
+			}
+			// Get the bounds of the string
+			bounds = draw_word.getBounds2D();
 			for (int j = sides; j > -1; j--)
 			{
 				position = searchSpace(bounds, j);
@@ -189,25 +204,16 @@ public class Painter {
 		int y = (int) (position.y - bounds.getMinY());
 		//int str_X = (int) (bounds.getMaxX()-bounds.getMinX());
 		//int str_Y = (int) (bounds.getMaxY()-bounds.getMinY());
-		TextShape textshape = new TextShape(font,words.get(i).getStr());
-		Shape draw_word=textshape.getShape();
-		AffineTransform tx = new AffineTransform();
-		tx.setToTranslation(position.x,position.y );
+		
+		tx.setToTranslation(x, y );
 		draw_word=tx.createTransformedShape(draw_word);
-		if(is_rotate) {	
-			//g.drawRect(position.x, position.y, str_Y,str_X);
-			//System.out.println(bounds.getMinX());		
-			AffineTransform ax = new AffineTransform();
-			ax.rotate(0.3,position.x,position.y);
-			draw_word=ax.createTransformedShape(draw_word);
-		}
+		g.drawRect(position.x, position.y,(int)(bounds.getMaxX() - bounds.getMinX()), (int)(bounds.getMaxY() - bounds.getMinY()));
 		g.fill(draw_word);
 		words.get(i).setPoint(x, y);
 		if (update) observer.imageUpdate(img, ImageObserver.ALLBITS, position.x, position.y, (int) (bounds.getMaxX() - bounds.getMinX()), (int) (bounds.getMaxY() - bounds.getMinY()));
 		return 1;	
 	}
 
-	
 	private void setColor(int i)
 	{
 		g.setColor(new Color((int)(Math.random() * 15 + 20), (int)(Math.random() * 25 + 109), (int)(Math.random() * 45 + 180), 180));		
@@ -224,13 +230,8 @@ public class Painter {
 		// The bounds of the string
 		int str_X;
 		int str_Y;
-		if(is_rotate) {
-			str_Y = (int) (bounds.getMaxX() - bounds.getMinX());
-			str_X = (int) (bounds.getMaxY() - bounds.getMinY());
-		} else {
-			str_X = (int) (bounds.getMaxX() - bounds.getMinX());
-			str_Y = (int) (bounds.getMaxY() - bounds.getMinY());
-		}
+		str_X = (int) (bounds.getMaxX() - bounds.getMinX());
+		str_Y = (int) (bounds.getMaxY() - bounds.getMinY());
 		int loop=1;
 		int step=(int)(0.1*str_Y);
 		if(step<1)step=1;
