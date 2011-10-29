@@ -2,10 +2,10 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.Shape;
-import java.awt.font.FontRenderContext;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.BufferedInputStream;
@@ -19,10 +19,8 @@ public class Painter {
 	private final static String fontfile = "res/font.ttf"; // Font
 	private BufferedImage img;
 	Graphics2D g;
-	private final static FontRenderContext context = new FontRenderContext (null, false, false);
-	private Vector<Shape> shapes; 
 	private static Point p_cen;
-	private static final int max_num = 100;
+	private static final int max_num = 50;
 	private static final int font_min = 20;
 	private static final int font_max = 125;
 	private static Point min_size;
@@ -30,6 +28,7 @@ public class Painter {
 	private Shape bound_shape;
 	Font font;
 	Font fontBase;
+
 
 	private final int height; // height of the picture
 	private final int width; // width of the picture	
@@ -49,7 +48,6 @@ public class Painter {
 		img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		p_cen = new Point(width / 2, height / 2);
 		min_size = new Point(0,0);
-		shapes = new Vector<Shape>(max_num);
 		//set shape
 		bound=new Bound(5, width, height);
 		bound_shape=bound.get_shape();
@@ -140,11 +138,12 @@ public class Painter {
 		
 		// Try to find an empty space of the string
 		Point position = null;	
-		Rectangle2D  bounds = null;
+		Rectangle  bounds = null;
 		Shape draw_word = null;
 		AffineTransform tx = null;
 		boolean found = false;
-		
+		double angle = 0.31;
+		Point[] str_vertex = new Point[4];
 		while (!found)
 		{
 			// Set the font
@@ -160,25 +159,28 @@ public class Painter {
 			TextShape textshape = new TextShape(font,words.get(i).getStr());
 			draw_word=textshape.getShape();
 			tx = new AffineTransform();
+			bounds = draw_word.getBounds();
+			str_vertex[0] = new Point(bounds.x, bounds.y);
+			str_vertex[1] = new Point(bounds.x, bounds.y + bounds.height);
+			str_vertex[2] = new Point(bounds.x + bounds.width, bounds.y + bounds.height);
+			str_vertex[3] = new Point(bounds.x + bounds.width, bounds.y);
+			
 			if(Math.random()>0.5) {
 				is_rotate=true;
 			} else {
 				is_rotate=true;
 			}
 			if(is_rotate) {	
-				//g.drawRect(position.x, position.y, str_Y,str_X);
-				
-				tx.setToTranslation(0,0 );
-				draw_word=tx.createTransformedShape(draw_word);
 				AffineTransform ax = new AffineTransform();
-				ax.rotate(Math.PI/6,0,0);
+				ax.rotate(angle ,0,0);
+				ax.transform(str_vertex, 0, str_vertex, 0, 4);
 				draw_word=ax.createTransformedShape(draw_word);
 			}
 			// Get the bounds of the string
-			bounds = draw_word.getBounds2D();
+			bounds = draw_word.getBounds();
 			for (int j = sides; j > -1; j--)
 			{
-				position = searchSpace(bounds, j);
+				position = searchSpace(bounds, j, i);
 				if (position != null)
 				{
 					found = true;
@@ -200,17 +202,26 @@ public class Painter {
 		
 		setColor(i);// Set the color of the string which is related to its position
 		// Draw the string
-		int x = (int) (position.x - bounds.getMinX());
-		int y = (int) (position.y - bounds.getMinY());
+		int x = (int) (position.x - bounds.x);
+		int y = (int) (position.y - bounds.y);
 		//int str_X = (int) (bounds.getMaxX()-bounds.getMinX());
 		//int str_Y = (int) (bounds.getMaxY()-bounds.getMinY());
 		
-		tx.setToTranslation(x, y );
+		tx.setToTranslation(x, y);
+		tx.transform(str_vertex, 0, str_vertex, 0, 4);
 		draw_word=tx.createTransformedShape(draw_word);
-		g.drawRect(position.x, position.y,(int)(bounds.getMaxX() - bounds.getMinX()), (int)(bounds.getMaxY() - bounds.getMinY()));
+//		Rectangle2D str_bounds = g.getFont().getStringBounds (words.get(i).getStr(), context);
+//		g.drawRect(position.x, position.y, bounds.width, bounds.height);
+//		g.drawLine((int)str_vertex[0].x, (int)str_vertex[0].y, (int)str_vertex[1].x, (int)str_vertex[1].y);
+//		g.drawLine((int)str_vertex[2].x, (int)str_vertex[2].y, (int)str_vertex[1].x, (int)str_vertex[1].y);
+//		g.drawLine((int)str_vertex[2].x, (int)str_vertex[2].y, (int)str_vertex[3].x, (int)str_vertex[3].y);
+//		g.drawLine((int)str_vertex[3].x, (int)str_vertex[3].y, (int)str_vertex[0].x, (int)str_vertex[0].y);
 		g.fill(draw_word);
 		words.get(i).setPoint(x, y);
-		if (update) observer.imageUpdate(img, ImageObserver.ALLBITS, position.x, position.y, (int) (bounds.getMaxX() - bounds.getMinX()), (int) (bounds.getMaxY() - bounds.getMinY()));
+		int[] str_x = {(int)str_vertex[0].x, (int)str_vertex[1].x, (int)str_vertex[2].x, (int)str_vertex[3].x};
+		int[] str_y = {(int)str_vertex[0].y, (int)str_vertex[1].y, (int)str_vertex[2].y, (int)str_vertex[3].y};
+		words.get(i).setBounds(new Polygon(str_x, str_y, 4));
+		if (update) observer.imageUpdate(img, ImageObserver.ALLBITS, position.x, position.y, bounds.width, bounds.height);
 		return 1;	
 	}
 
@@ -225,13 +236,13 @@ public class Painter {
 	}
 			
 
-	private Point searchSpace(Rectangle2D bounds, int sides)
+	private Point searchSpace(Rectangle bounds, int sides, int i)
 	{		
 		// The bounds of the string
 		int str_X;
 		int str_Y;
-		str_X = (int) (bounds.getMaxX() - bounds.getMinX());
-		str_Y = (int) (bounds.getMaxY() - bounds.getMinY());
+		str_X = bounds.width;
+		str_Y = bounds.height;
 		int loop=1;
 		int step=(int)(0.1*str_Y);
 		if(step<1)step=1;
@@ -254,7 +265,7 @@ public class Painter {
 				}
 				if(min_size.y==font_min)break;
 			}
-			if (isEmpty(x-str_X/2, y-str_Y/2, str_X, str_Y, sides))
+			if (isEmpty(x-str_X/2, y-str_Y/2, str_X, str_Y, sides, i))
 			{
 				return new Point(x-str_X/2, y-str_Y/2);
 			}
@@ -309,9 +320,17 @@ public class Painter {
 		return null;
 	}	
 	
-	private boolean isEmpty(int x, int y, int str_X, int str_Y, int sides)
+	private boolean isEmpty(int x, int y, int str_X, int str_Y, int sides, int n)
 	{
 		if (x + str_X >= width || y + str_Y >= height) return false;
+	
+		for (int l = 0; l < n; l++)
+		{
+			if (words.get(l).getBounds().contains(x, y) || words.get(l).getBounds().contains(x + str_X, y + str_Y))
+			{
+				return false;
+			}
+		}
 		
 		int i = 0;
 		int j = 0;
