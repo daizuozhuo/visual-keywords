@@ -21,7 +21,7 @@ public class Painter {
 	private final static FontRenderContext context = new FontRenderContext (null, false, false);
 	
 	private static Point p_cen;
-	private static final int max_num = 300;
+	private static final int max_num = 500;
 	private static final int font_min = 20;
 	private static final int font_max = 50;
 	private static Point min_size;
@@ -84,7 +84,7 @@ public class Painter {
 		for (int i = 0; i < max_num && i < words.size(); i++)
 		{
 
-			if (paintStr(i, i > 5 ? false : false) == 0)
+			if (paintStr(i, i > 5 ? 2 : 0) == 0)
 			{
 				words.remove(i);
 				i--;
@@ -129,7 +129,7 @@ public class Painter {
 	}
 	
 	
-	private int paintStr(int i, boolean checkNear)
+	private int paintStr(int i, int sides)
 	{
 		// Set the font
 		try {
@@ -142,22 +142,16 @@ public class Painter {
 		// Get the bounds of the string
 		Rectangle2D  bounds = g.getFont().getStringBounds (words.get(i).getStr(), context);
 		// Try to find an empty space of the string
-		Point position;	
-		if (checkNear)
+		Point position = null;	
+		for (int j = sides; j > -1; j--)
 		{
-			position = searchSpace(bounds, true);
-			if(position == null) 
-			{
-				position = searchSpace(bounds, false);	
-				if(position == null)
-				{
-					return 0;
-				}
-			}	
+			position = searchSpace(bounds, j);
+			if (position != null) break;
 		}
-		else
+		if(position == null)
 		{
-			position = searchSpace(bounds, false);				
+			System.out.println("Error! No space available!");
+			return 0;
 		}
 		
 		// Set the color of the string which is related to its position
@@ -173,14 +167,14 @@ public class Painter {
 		int x = (int) (position.x - bounds.getMinX());
 		int y = (int) (position.y - bounds.getMinY());
 
-		g.rotate(5, width / 2, height / 2); 
+//		g.rotate(0.1, width / 2, height / 2); 
 		g.drawString(words.get(i).getStr(), x, y);
 		words.get(i).setPoint(x, y);
 		//if(update) wordle.update(position.x, position.y, (int) (bounds.getMaxX() - bounds.getMinX()), (int) (bounds.getMaxY() - bounds.getMinY()));
 		return 1;	
 	}
 			
-	private Point searchSpace(Rectangle2D bounds, boolean checkNear)
+	private Point searchSpace(Rectangle2D bounds, int sides)
 	{		
 		// The bounds of the string
 		int str_X = (int) (bounds.getMaxX() - bounds.getMinX());
@@ -211,7 +205,7 @@ public class Painter {
 				}
 				if(min_size.y==font_min)break;
 			}
-			if (isEmpty(x-str_X/2, y-str_Y/2, str_X, str_Y, checkNear))
+			if (isEmpty(x-str_X/2, y-str_Y/2, str_X, str_Y, sides))
 			{
 				return new Point(x-str_X/2, y-str_Y/2);
 			}
@@ -255,7 +249,6 @@ public class Painter {
 			
 		}	while (x < width - str_X / 2);	
 		
-		System.out.println("Error! No space available!");
 		
 			if (min_size.x==0) min_size.x=str_X;
 			if (min_size.x>str_X) min_size.x=str_X;
@@ -267,7 +260,7 @@ public class Painter {
 		return null;
 	}	
 	
-	private boolean isEmpty(int x, int y, int str_X, int str_Y, boolean checkNear)
+	private boolean isEmpty(int x, int y, int str_X, int str_Y, int sides)
 	{
 		if (x + str_X >= width || y + str_Y >= height) return false;
 		
@@ -311,7 +304,7 @@ public class Painter {
 		// not too far away from other words
 		
 		//if is the first word;
-		if (!checkNear)
+		if (sides == 0)
 		{
 			return true;
 		}
@@ -325,6 +318,11 @@ public class Painter {
 			if (isNearWord(x + j, y + i)) 
 			{
 			count ++;
+			if (count == sides)
+			{
+//				g.drawOval(x+j,y+i, 3, 3);
+				return true;
+			}
 			break;
 			}
 		
@@ -333,7 +331,7 @@ public class Painter {
 			if (isNearWord(x + j, y + i)) 
 			{
 			count ++;
-			if (count == 2)
+			if (count == sides)
 			{
 //				g.drawOval(x+j,y+i, 3, 3);
 				return true;
@@ -346,7 +344,7 @@ public class Painter {
 			if (isNearWord(x + j, y + i)) 
 			{
 			count ++;
-			if (count == 2)
+			if (count == sides)
 			{
 //				g.drawOval(x+j,y+i, 3, 3);
 				return true;
@@ -359,13 +357,13 @@ public class Painter {
 			if (isNearWord(x + j, y + i)) 
 			{
 			count ++;
-			if (count == 2)
+			if (count == sides)
 			{
 //				g.drawOval(x+j,y+i, 3, 3);
 				return true;
 			}
 			break;
-			}	
+			}
 
 		return false;
 	}
@@ -375,8 +373,9 @@ public class Painter {
 		Point s = new Point(a, b);
 		Point2D d = new Point(a ,b);
 		d = g.getTransform().transform(s, d);		
-		if (img.getRGB((int) d.getX(), (int) d.getY()) == Color.white.getRGB() && bound_shape.contains((int) d.getX(), (int) d.getY())) 
+		if (bound_shape.contains((int) d.getX(), (int) d.getY()) && img.getRGB((int) d.getX(), (int) d.getY()) == Color.white.getRGB()) 
 		{
+//			g.drawOval((int) d.getX(), (int) d.getY(), 1, 1);
 			return true;
 		} 
 		else 
@@ -392,7 +391,7 @@ public class Painter {
 		d = g.getTransform().transform(s, d);	
 		if (!bound_shape.contains((int) d.getX(), (int) d.getY()))
 		{
-			return true;
+			return false;
 		}
 		if (img.getRGB((int) d.getX(), (int) d.getY()) != Color.white.getRGB()) 
 		{
