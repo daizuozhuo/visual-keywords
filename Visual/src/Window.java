@@ -5,8 +5,12 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Vector;
 
 import javax.imageio.ImageIO;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -18,28 +22,71 @@ import javax.swing.JOptionPane;
 @SuppressWarnings("serial")
 public class Window extends JFrame {
 
-	private Word[] result;
+	private Vector<Word> result;
 	private JMenuBar menuBar;
-	private JMenu menu;
+	private JMenu menuFile;
+	private JMenu menuPreference;
 	private JMenuItem menuItem_start;
 	private JMenuItem menuItem_back;
 	private JMenuItem menuItem_save;
 	private JMenuItem menuItem_exit;
+	private JCheckBoxMenuItem menuItem_update;
 	private Wordle wordle;
+	private Painter painter;
+	private final int height = 768; // height of the picture
+	private final int width = 1024; // width of the picture
 	
-	public Window(String title, Word[] result)
+	public Window(String title)
 	{
 		super(title);
 		setLocation(30,50);
 		setVisible(true);
 		setIconImage(Toolkit.getDefaultToolkit().getImage("res/icon.jpg"));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setMenubar();
-		wordle = new Wordle();
+		wordle = new Wordle(width, height);
 		setContentPane(wordle);
 		setResizable(false);
+	}
+	
+	public void run() 
+	{
+
+        Catcher catcher = new Catcher();
+        // Load library
+        try
+        {
+			catcher.load_library();
+			System.out.println("Library Load Successful!"); 
+		} 
+        catch (IOException e) 
+        {
+    		System.out.println("Library Load Error!");
+			e.printStackTrace();
+        }
+        
+        // Analyse input
+        try
+        {
+			catcher.analyse("res/input1.txt");
+    		System.out.println("Analysis Successful!");
+		} 
+        catch (IOException e)
+        {
+    		System.out.println("Analysis Error!");
+			e.printStackTrace();
+		}
+        
+        // Sort the words found
+        Collection<Word> c = catcher.get_values();  
+        result = new Vector<Word>(c);
+        //result =  (Word[]) c.toArray(new Word[c.size()]);
+        Collections.sort(result);
+        
+       	for (int i = 0 ; i < result.size(); i++) result.get(i).print();
+       	System.out.println("------------------ " + result.size() + " keywords found ------------------");
+		setMenubar();
 		pack();
-		this.result = result;
+       	painter = new Painter(result, width, height, menuItem_update.getState());
 	}
 	
 	//set menu;
@@ -49,15 +96,19 @@ public class Window extends JFrame {
 		menuBar = new JMenuBar();
 
 		//Build the first menu.
-		menu = new JMenu("File");
-		menuBar.add(menu);
+		menuFile = new JMenu("File");		
+		menuPreference = new JMenu("Preference");
+		menuBar.add(menuFile);
+		menuBar.add(menuPreference);
 
 		//a group of JMenuItems
 		
 		menuItem_start = new JMenuItem("Start",KeyEvent.VK_S);
 		menuItem_back = new JMenuItem("Set background image",KeyEvent.VK_B);
 		menuItem_save = new JMenuItem("Save Image",KeyEvent.VK_I);
-		menuItem_exit=new JMenuItem("Exit",KeyEvent.VK_E);
+		menuItem_exit =new JMenuItem("Exit",KeyEvent.VK_E);
+		menuItem_update = new JCheckBoxMenuItem("Real Time Update", true);
+
 		
 		menuItem_start.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e)
@@ -87,20 +138,22 @@ public class Window extends JFrame {
             }
         });    
 		
-		menu.add(menuItem_start);
-		menu.add(menuItem_back);
-		menu.add(menuItem_save);
-		menu.add(menuItem_exit);
 		
+		
+		menuFile.add(menuItem_start);
+		menuFile.add(menuItem_back);
+		menuFile.add(menuItem_save);
+		menuFile.add(menuItem_exit);
+		menuPreference.add(menuItem_update);
 		this.setJMenuBar(menuBar);
 	}
 	
-	public void start()
+	private void start()
 	{
-       	Painter painter = new Painter(result, wordle);
 
-   		JOptionPane.showMessageDialog(null, painter.paint(), "Message", 1);
-
+   		JOptionPane.showMessageDialog(null, painter.paint(), "Message", 1/*, new ImageIcon(Toolkit.getDefaultToolkit().getImage("res/icon.jpg"))*/);
+   		wordle.setImg(painter.getImg());
+   		wordle.repaint();
 	}
 	
 	public void choose_backimg()
@@ -114,12 +167,14 @@ public class Window extends JFrame {
 	       try 
 	       {
 	    	   BufferedImage bimg = ImageIO.read(file);
-	    	   //set_background(bimg);
-	       } catch (IOException e)
+	    	   painter.setBackground(bimg);
+	       } 
+	       catch (IOException e)
 	       {
 				System.out.println("use white bacground");
 	       }
 	    }
 	}
+
 
 }
