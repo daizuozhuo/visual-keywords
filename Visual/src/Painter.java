@@ -4,6 +4,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Shape;
 import java.awt.font.FontRenderContext;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -21,7 +22,7 @@ public class Painter {
 	private final static FontRenderContext context = new FontRenderContext (null, false, false);
 	
 	private static Point p_cen;
-	private static final int max_num = 500;
+	private static final int max_num = 50;
 	private static final int font_min = 20;
 	private static final int font_max = 50;
 	private static Point min_size;
@@ -33,12 +34,7 @@ public class Painter {
 	private final int height; // height of the picture
 	private final int width; // width of the picture	
 	private final boolean update; 
-	
-//	private int max(int a,int b)
-//	{
-//		if(a>=b)return a;
-//		else return b;
-//	}
+	private boolean is_rotate;
 	
 	public Painter(Vector<Word> result, int width, int height, boolean update) 
 	{
@@ -142,7 +138,13 @@ public class Painter {
 		// Get the bounds of the string
 		Rectangle2D  bounds = g.getFont().getStringBounds (words.get(i).getStr(), context);
 		// Try to find an empty space of the string
-		Point position = null;	
+		Point position = null;
+		//set the words to be draw vertically or horizontally.
+		if(Math.random()>0.5) {
+			is_rotate=true;
+		} else {
+			is_rotate=false;
+		}
 		for (int j = sides; j > -1; j--)
 		{
 			position = searchSpace(bounds, j);
@@ -166,20 +168,41 @@ public class Painter {
 		// Draw the string
 		int x = (int) (position.x - bounds.getMinX());
 		int y = (int) (position.y - bounds.getMinY());
-
-//		g.rotate(0.1, width / 2, height / 2); 
-		g.drawString(words.get(i).getStr(), x, y);
+		int str_X = (int) (bounds.getMaxX()-bounds.getMinX());
+		int str_Y = (int) (bounds.getMaxY()-bounds.getMinY());
+		if(is_rotate) {	
+			//g.drawRect(position.x, position.y, str_Y,str_X);
+			TextShape textshape = new TextShape(font,words.get(i).getStr());
+			Shape draw_word=textshape.getShape();
+			//System.out.println(bounds.getMinX());
+			AffineTransform tx = new AffineTransform();
+			tx.setToTranslation(position.x,position.y );
+			draw_word=tx.createTransformedShape(draw_word);
+			AffineTransform ax = new AffineTransform();
+			ax.rotate(Math.PI/2,position.x,position.y);
+			draw_word=ax.createTransformedShape(draw_word);
+			g.fill(draw_word);
+		} else {
+			//g.drawRect(position.x, position.y, str_X,str_Y);
+			g.drawString(words.get(i).getStr(), x, y);
+		}
 		words.get(i).setPoint(x, y);
 		//if(update) wordle.update(position.x, position.y, (int) (bounds.getMaxX() - bounds.getMinX()), (int) (bounds.getMaxY() - bounds.getMinY()));
 		return 1;	
 	}
-			
+
 	private Point searchSpace(Rectangle2D bounds, int sides)
 	{		
 		// The bounds of the string
-		int str_X = (int) (bounds.getMaxX() - bounds.getMinX());
-		int str_Y = (int) (bounds.getMaxY() - bounds.getMinY());
-
+		int str_X;
+		int str_Y;
+		if(is_rotate) {
+			str_Y = (int) (bounds.getMaxX() - bounds.getMinX());
+			str_X = (int) (bounds.getMaxY() - bounds.getMinY());
+		} else {
+			str_X = (int) (bounds.getMaxX() - bounds.getMinX());
+			str_Y = (int) (bounds.getMaxY() - bounds.getMinY());
+		}
 		int loop=1;
 		int step=(int)(0.1*str_Y);
 		if(step<1)step=1;
@@ -195,9 +218,6 @@ public class Painter {
 		
 		do
 		{	
-			
-			//System.out.println(str_X+" "+str_Y+" "+min_size+" "+step);
-			
 			if(min_size.x!=0){
 				if(str_X>=min_size.x&&str_Y>=min_size.y)
 				{
@@ -297,11 +317,11 @@ public class Painter {
 		for (i = 0; i < str_Y; i += 1)
 			if (!isInShape(x + j, y + i)) return false;		
 		
-		//		g.drawLine(x, y, x+str_X, y);
-//		g.drawLine(x, y, x, y+str_Y);
-//		g.drawLine(x+str_X, y, x+str_X, y+str_Y);
-//		g.drawLine(x+str_X, y+str_Y, x, y+str_Y);
-		// not too far away from other words
+			/*	g.drawLine(x, y, x+str_X, y);
+		g.drawLine(x, y, x, y+str_Y);
+		g.drawLine(x+str_X, y, x+str_X, y+str_Y);
+		g.drawLine(x+str_X, y+str_Y, x, y+str_Y);
+		*/// not too far away from other words
 		
 		//if is the first word;
 		if (sides == 0)
