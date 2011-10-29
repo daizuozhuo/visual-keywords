@@ -22,9 +22,9 @@ public class Painter {
 	private final static FontRenderContext context = new FontRenderContext (null, false, false);
 	
 	private static Point p_cen;
-	private static final int max_num = 50;
+	private static final int max_num = 100;
 	private static final int font_min = 20;
-	private static final int font_max = 50;
+	private static final int font_max = 125;
 	private static Point min_size;
 	private Bound bound;
 	private Shape bound_shape;
@@ -83,7 +83,6 @@ public class Painter {
 			return "No Keywords Found!";
 		}
 
-		int total = 0;
 		int drawn = 0;
 		setSize(); // Reset make is the size of the font
 
@@ -91,22 +90,30 @@ public class Painter {
 		
 		for (int i = 0; i < max_num && i < words.size(); i++)
 		{
-
-			drawn += paintStr(i, i > 5 ? 2 : 0);
+			if (paintStr(i, i > 5 ? 2 : 0) == 0) break;
+			drawn ++;
 			System.out.println((i + 1 ) + " / " + words.size() + " done. Size: " + words.get(i).getSize());
-			total++;
 		}		
 		System.out.println("Paint Successful!");   
 		long endTime = new Date().getTime();
 		done = true;
-		return drawn + " / " + total + " drawn. \nTime used: " + (endTime - startTime) / 1000 + "." + (endTime - startTime) % 1000 + " s.";
+		return drawn  + " drawn. \nTime used: " + (endTime - startTime) / 1000 + "." + (endTime - startTime) % 1000 + " s.";
 	}
 	
 	private void repaint() 
 	{
 		for (int i = 0; i < words.size(); i++)
 		{
-			if (words.get(i).X() == -1) continue;
+			if (words.get(i).X() == -1) continue;		
+			try   // Set the font
+			{
+				font = fontBase.deriveFont(Font.PLAIN, words.get(i).getSize());
+			} 
+			catch (Exception ex)
+			{
+				ex.printStackTrace();
+			}
+			g.setFont(font);
 			g.drawString(words.get(i).getStr(), words.get(i).X(), words.get(i).Y());
 		}		
 		observer.imageUpdate(img, ImageObserver.ALLBITS, 0, 0, width, height);
@@ -124,7 +131,7 @@ public class Painter {
 		for (int i = 0; i < words.size(); i++) sum += words.get(i).getCount();
 		for (int i = 0; i < words.size(); i++) 
 		{
-			int temp = words.get(i).getCount() * 130 / sum + 150 - 5 * i; // Function to determine the font size
+			int temp = words.get(i).getCount() * 130 / sum + 125 - i / 10 * 30; // Function to determine the font size
 			if (temp < font_min) temp = font_min; // Minimum size 
 			else if (temp > font_max) temp = font_max; // Maximum size
 			words.get(i).setSize(temp);
@@ -135,37 +142,49 @@ public class Painter {
 	
 	private int paintStr(int i, int sides)
 	{
-		// Set the font
-		try {
-			font = fontBase.deriveFont(Font.PLAIN, words.get(i).getSize());
-	      } catch (Exception ex) {
-	        ex.printStackTrace();
-	      }
-		g.setFont(font);
-		
-		// Get the bounds of the string
-		Rectangle2D  bounds = g.getFont().getStringBounds (words.get(i).getStr(), context);
 		// Try to find an empty space of the string
 		Point position = null;	
-		for (int j = sides; j > -1; j--)
+		Rectangle2D  bounds = null;
+		boolean found = false;
+		while (!found)
 		{
-			position = searchSpace(bounds, j);
-			if (position != null) break;
-		}
-		if(position == null)
-		{
-			System.out.println("Error! No space available!");
-			return 0;
+			// Set the font
+			try 
+			{
+				font = fontBase.deriveFont(Font.PLAIN, words.get(i).getSize());
+			} 
+			catch (Exception ex)
+			{
+				ex.printStackTrace();
+			}
+			g.setFont(font);
+			
+			// Get the bounds of the string
+			bounds = g.getFont().getStringBounds (words.get(i).getStr(), context);
+			
+			for (int j = sides; j > -1; j--)
+			{
+				position = searchSpace(bounds, j);
+				if (position != null)
+				{
+					found = true;
+					break;
+				}
+			}
+			
+			if (!found) // no space, try to make the word smaller
+			{
+				words.get(i).setSize(words.get(i).getSize() - 10);
+				if (words.get(i).getSize() < font_min) // too small. no space available on the canvas
+				{
+					System.out.println("Warning! No space available!");
+					return 0;		
+				}
+					
+			}
 		}
 		
-		// Set the color of the string which is related to its position
-//		g.setColor(new Color(
-//				 max( position.x/5>220 ? 220 : position.x/5 , 100 ),
-//				 max( position.y/5>220 ? 220 : position.y/5 , 100 ),
-//				 max( (position.x+position.y)/10>220 ? 220 : (position.x+position.y)/10 , 100 )
-//				 ));
-		
-		g.setColor(new Color((int)(Math.random() * 15 + 20), (int)(Math.random() * 25 + 109), (int)(Math.random() * 45 + 180), 180));
+		setColor(i);// Set the color of the string which is related to its position
 		
 		// Draw the string
 		int x = (int) (position.x - bounds.getMinX());
@@ -176,6 +195,16 @@ public class Painter {
 		words.get(i).setPoint(x, y);
 		if (update) observer.imageUpdate(img, ImageObserver.ALLBITS, position.x, position.y, (int) (bounds.getMaxX() - bounds.getMinX()), (int) (bounds.getMaxY() - bounds.getMinY()));
 		return 1;	
+	}
+	
+	private void setColor(int i)
+	{
+		g.setColor(new Color((int)(Math.random() * 15 + 20), (int)(Math.random() * 25 + 109), (int)(Math.random() * 45 + 180), 180));		
+//		g.setColor(new Color(
+//		 max( position.x/5>220 ? 220 : position.x/5 , 100 ),
+//		 max( position.y/5>220 ? 220 : position.y/5 , 100 ),
+//		 max( (position.x+position.y)/10>220 ? 220 : (position.x+position.y)/10 , 100 )
+//		 ));
 	}
 			
 	private Point searchSpace(Rectangle2D bounds, int sides)
