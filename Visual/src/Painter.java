@@ -5,7 +5,6 @@ import java.awt.Point;
 import java.awt.Shape;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
@@ -200,7 +199,7 @@ public class Painter {
 			tx.setToTranslation(position.x,position.y );
 			draw_word=tx.createTransformedShape(draw_word);
 			AffineTransform ax = new AffineTransform();
-			ax.rotate(Math.PI/2,position.x,position.y);
+			ax.rotate(0.3,position.x,position.y);
 			draw_word=ax.createTransformedShape(draw_word);
 			g.fill(draw_word);
 		} else {
@@ -423,10 +422,7 @@ public class Painter {
 
 	private boolean isInShape(int a, int b)
 	{
-		Point s = new Point(a, b);
-		Point2D d = new Point(a ,b);
-		d = g.getTransform().transform(s, d);		
-		if (bound_shape.contains((int) d.getX(), (int) d.getY()) && img.getRGB((int) d.getX(), (int) d.getY()) == Color.white.getRGB()) 
+		if (bound_shape.contains(a, b) && img.getRGB(a, b) == Color.white.getRGB()) 
 		{
 //			g.drawOval((int) d.getX(), (int) d.getY(), 1, 1);
 			return true;
@@ -439,14 +435,11 @@ public class Painter {
 	
 	private boolean isNearWord(int a, int b)
 	{
-		Point s = new Point(a, b);
-		Point2D d = new Point(a ,b);
-		d = g.getTransform().transform(s, d);	
-		if (!bound_shape.contains((int) d.getX(), (int) d.getY()))
+		if (!bound_shape.contains(a, b))
 		{
 			return false;
 		}
-		if (img.getRGB((int) d.getX(), (int) d.getY()) != Color.white.getRGB()) 
+		if (img.getRGB(a, b) != Color.white.getRGB()) 
 		{
 			return true;
 		} 
