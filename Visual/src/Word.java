@@ -4,6 +4,7 @@ import java.awt.Polygon;
 
 public class Word implements Comparable<Word> {
     private int count; // Times this key words was found
+    private int count2; // Times this key words was found in file 2
     private String str; // The key word
     private int size; // Font size
     private int x; // x coordinate
@@ -11,9 +12,10 @@ public class Word implements Comparable<Word> {
     private Polygon bounds;
     private double f1, f2;
    
-    public Word(String str)
+    public Word(String str, int i)
     {
-        this.count = 1;
+        if (i == 1) this.count = 1;
+        else count2++;
         this.str = str;
         this.size = 15;
         this.x = -1;
@@ -23,8 +25,10 @@ public class Word implements Comparable<Word> {
     public double getP() { return f1/f2; }
     public String getStr() {return str;}
     public int getCount() {return count;}
+    public int getCount2() {return count2;}
     public int getSize() {return size;}
     public void hit() {count++;} // Found again
+    public void hit2() {count2++;} // Found again in file 2
     public void setSize(int i) {size = i;}
     public void setPoint(int x, int y) {this.x = x;    this.y = y;}
     public void setBounds(Polygon bounds) {this.bounds = bounds;}

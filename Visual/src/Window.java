@@ -182,7 +182,7 @@ public class Window extends JFrame {
 	
 	private void start_multi()
 	{
-        Catcher_single catcher = new Catcher();
+        Catcher catcher = new Catcher();
         // Load library
         try
         {
@@ -198,7 +198,7 @@ public class Window extends JFrame {
         // Analyse input
         try
         {
-			catcher.analyse("res/input.txt");
+			catcher.analyse("res/input1.txt", "res/input2.txt");
     		System.out.println("Analysis Successful!");
 		} 
         catch (IOException e)
