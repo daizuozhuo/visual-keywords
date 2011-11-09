@@ -100,7 +100,7 @@ public class Painter_multi implements Painter{
 	{
 		for (int i = 0; i < words.size(); i++)
 		{
-			if (words.get(i).X() == -1) continue;		
+			if (words.get(i).X() == -1) break;		
 			try   // Set the font
 			{
 				font = fontBase.deriveFont(Font.PLAIN, words.get(i).getSize());
