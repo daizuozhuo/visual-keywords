@@ -253,68 +253,18 @@ public class Painter_multi implements Painter{
 		int str_X = bounds.width;
 		int str_Y = bounds.height;
 		str_Y = bounds.height;
-		int loop=1;
-		int y=p_cen.y-loop;	
-		int x=(int)(p*width-loop);
-		
-		// The starting position of x and y
-		int init_Y = y;
-		int init_X = x;
-		
-		//search in the area of bound.
-		int left_bound=0;
-		int right_bound=0;
-		int up_bound=0;
-		int low_bound=0;
-		
+		int y= p_cen.y;
+		int x=(int)(p*width);
+		int k = 1; 
 		do
 		{	
-			if (isEmpty(x-str_X/2, y-str_Y/2, str_X, str_Y, sides, i))
-			{
-				return new Point(x-str_X/2, y-str_Y/2);
+			if(isEmpty(x, y, str_X, str_Y, 0, i)) {
+				return new Point(x,y);
 			}
-			left_bound=p_cen.x-loop;
-			right_bound=p_cen.x+loop;
-			low_bound=p_cen.y-loop;
-			up_bound=p_cen.y+loop;
-			//low and up bound cannot out of rectangle area.
-			if(low_bound<=str_Y/2)low_bound=1+str_Y/2;
-			if(up_bound >= height - str_Y / 2) up_bound = height - str_Y / 2;
-			
-			//search in the form of circle
-			if(x<=left_bound)
-			{
-				if(y>low_bound)y=y--;
-				else x++;
-			}
-			else if(x>=right_bound)
-			{ 
-				if(y<up_bound)y=y++;
-				else x--;
-			}
-			else
-			{
-				if(y<=low_bound)
-				{
-					x++;
-				}else if(y>=up_bound)
-				{
-					x--;
-				}else{
-					x++;
-				}
-			}
-			
-			//back to the staring point, add loop and search again
-			if(x<=init_X&&y<=init_Y)
-			{
-				init_X=left_bound-1;
-				init_Y=low_bound-1;
-				if(init_Y<=str_Y/2)init_Y=1+str_Y/2;
-				loop=loop+1;
-			}
-			
-		}	while ((x < width - str_X / 2) || loop < 10);	
+			k++;
+			y += (k % 2 == 0 ? 1 : -1) * Math.pow(2, k);
+			System.out.println(x+" , "+y);
+		}	while (y > 0 && y < height);	
 		return null;
 	}	
 	

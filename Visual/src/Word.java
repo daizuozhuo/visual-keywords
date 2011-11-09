@@ -43,7 +43,13 @@ public class Word implements Comparable<Word> {
     public int X() {return x;}
     public int Y() {return y;}
     public Polygon getBounds() {return bounds;}
-    public double P() { return ((double)count/total1) / (((double)count / total1) + ((double)count2 / total2)); }
+    public double P() { 
+//    	double f1 = (double)(count / total1);
+//    	double f2 = (double)(count2 / total2);
+//    	double p = f1/(f1 + f2);
+    	System.out.println((double)((count)/(count + count2 * total1 / total2)));
+    	return (double)((count)/(count + count2 * total1 / total2));
+    }
     public double N() {return (0.5 - Math.abs(0.5 - P())) * (count + count2);}
    
     public void print()
