@@ -85,10 +85,10 @@ public class Painter_multi implements Painter{
 		if (update) observer.imageUpdate(img, ImageObserver.ALLBITS, 0, 0, width, height);
 		
 		for (int i = 0; i < max_num && i < words.size(); i++)
-		{
+		{	
 			if (paintStr(i, i > 5 ? 2 : 0) == 0) break;
 			drawn ++;
-			System.out.println((i + 1 ) + " / " + words.size() + " done. Size: " + words.get(i).getSize());
+			System.out.println((i + 1 ) + " / " + words.size() + " done. Size: " + words.get(i).getSize());	
 		}		
 		System.out.println("Paint Successful!");   
 		long endTime = new Date().getTime();
@@ -123,15 +123,19 @@ public class Painter_multi implements Painter{
 	//according to the frequency of word determine the size of font.
 	private void setSize() 
 	{
-		int sum = 0; // The sum of all the keywords found
-		for (int i = 0; i < words.size(); i++) sum += words.get(i).N();
+		double max = 0; // The sum of all the keywords found
+		/*for (int i = 0; i < words.size(); i++) sum += words.get(i).N();
 		for (int i = 0; i < words.size(); i++) 
 		{
 			int temp = (int)words.get(i).N() * 130 / sum + 125 - i / 10 * 30; // Function to determine the font size
 			if (temp < font_min) temp = font_min; // Minimum size 
 			else if (temp > font_max) temp = font_max; // Maximum size
 			words.get(i).setSize(temp);
-		}		
+		}*/
+		for (int i = 0; i < words.size(); i++) {
+			if(max < words.get(i).N()) max = words.get(i).N();
+		}
+		
 	}
 	
 	
@@ -181,21 +185,12 @@ public class Painter_multi implements Painter{
 			bounds = draw_word.getBounds();
 			for (int j = sides; j > -1; j--)
 			{
-				//rotate it 4 times to fit space
-				for(int k = 0; k < 4; k++) {
-					position = searchSpace(bounds, j, i, words.get(i).P());
-					if (position != null)
-					{
-						found = true;
-						j = -1;
-						break;
-					} else {
-						AffineTransform ax = new AffineTransform();
-						ax.rotate(Math.PI/4*Math.random() ,0,0);
-						ax.transform(str_vertex, 0, str_vertex, 0, 4);
-						draw_word=ax.createTransformedShape(draw_word);
-						bounds = draw_word.getBounds();
-					}
+				position = searchSpace(bounds, j, i, words.get(i).P());
+				if (position != null)
+				{
+					found = true;
+					j = -1;
+					break;
 				}
 			}
 			
@@ -238,7 +233,7 @@ public class Painter_multi implements Painter{
 		if(color_style == "warm") {
 			System.out.println("warm");
 			g.setColor(new Color(
-					/*red*/ (int)p*255,
+					/*red*/ (int)(p*255),
 					/*green*/ 0,
 					/*blue*/ (int)(1-p)*255
 					));
@@ -416,20 +411,6 @@ public class Painter_multi implements Painter{
 	{
 		g.drawImage(bimg, 0, 0, width, height, 0, 0, bimg.getWidth(), bimg.getHeight(), null);
 		repaint();
-//		for(int i = 0; i < width; i++) 
-//		{
-//			for(int j = 0; j < height; j++) 
-//			{
-//				if(fimg.getRGB(i,j) == Color.white.getRGB())
-//				{
-//					img.setRGB(i, j, bimg.getRGB(i * bimg.getWidth() / width, j * bimg.getHeight() / height));
-//				}
-//				else 
-//				{
-//					img.setRGB(i, j, fimg.getRGB(i, j));
-//				}
-//			}
-//		}
 	}
 
 	public void setColorStyle(String str) {
