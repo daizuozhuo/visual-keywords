@@ -10,34 +10,40 @@ public class Word implements Comparable<Word> {
     private int x; // x coordinate
     private int y; // y coordinate
     private Polygon bounds;
-    private double f1, f2;
-   
+    static int total1 = 0;;
+    static int total2 = 0;
+    
     public Word(String str, int i)
     {
-        if (i == 1) this.count = 1;
-        else count2++;
+        if (i == 1)
+        {
+        	count = 1;
+        	total1++;
+        }
+        else
+        {
+        	count2++;
+        	total2++;
+        }
         this.str = str;
         this.size = 15;
         this.x = -1;
         this.y = -1;
     }
-    public int getTotal() { 
-    	double i = 0.5;s
-    	return getCount() + getCount2();
-    	};
-    public double getP() { return f1/(f2 + f2); }
+
     public String getStr() {return str;}
     public int getCount() {return count;}
     public int getCount2() {return count2;}
     public int getSize() {return size;}
-    public void hit() {count++;} // Found again
-    public void hit2() {count2++;} // Found again in file 2
+    public void hit() {count++; total1++;} // Found again
+    public void hit2() {count2++; total2++;} // Found again in file 2
     public void setSize(int i) {size = i;}
     public void setPoint(int x, int y) {this.x = x;    this.y = y;}
     public void setBounds(Polygon bounds) {this.bounds = bounds;}
     public int X() {return x;}
     public int Y() {return y;}
     public Polygon getBounds() {return bounds;}
+    public double N() {return (0.5 - Math.abs(0.5 - (count / total1) / ((count / total1) + (count2 / total2)))) * (count + count2);}
    
     public void print()
     {
