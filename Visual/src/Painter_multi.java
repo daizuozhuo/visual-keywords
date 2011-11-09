@@ -25,7 +25,6 @@ public class Painter_multi implements Painter{
 	private static final int max_num = 150;
 	private static final int font_min = 18;
 	private static final int font_max = 125;
-	private static Point min_size;
 	private Bound bound;
 	private Shape bound_shape;
 	private String color_style;
@@ -50,11 +49,10 @@ public class Painter_multi implements Painter{
 	    done = false;
 		img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		p_cen = new Point(width / 2, height / 2);
-		min_size = new Point(0,0);
 		color_style="warm";	
 
 		//set shape
-		bound=new Bound("heart", width, height);
+		bound=new Bound("rect", width, height);
 		bound_shape=bound.get_shape();
 		
 		words = result;
@@ -126,10 +124,10 @@ public class Painter_multi implements Painter{
 	private void setSize() 
 	{
 		int sum = 0; // The sum of all the keywords found
-		for (int i = 0; i < words.size(); i++) sum += words.get(i).getTotal();
+		for (int i = 0; i < words.size(); i++) sum += words.get(i).N();
 		for (int i = 0; i < words.size(); i++) 
 		{
-			int temp = words.get(i).getTotal() * 130 / sum + 125 - i / 10 * 30; // Function to determine the font size
+			int temp = (int)words.get(i).N() * 130 / sum + 125 - i / 10 * 30; // Function to determine the font size
 			if (temp < font_min) temp = font_min; // Minimum size 
 			else if (temp > font_max) temp = font_max; // Maximum size
 			words.get(i).setSize(temp);
@@ -186,7 +184,7 @@ public class Painter_multi implements Painter{
 			{
 				//rotate it 4 times to fit space
 				for(int k = 0; k < 4; k++) {
-					position = searchSpace(bounds, j, i, words.get(i).getP());
+					position = searchSpace(bounds, j, i, words.get(i).P());
 					if (position != null)
 					{
 						found = true;
@@ -237,7 +235,7 @@ public class Painter_multi implements Painter{
 	
 	private void setColor(Point position, Word word)
 	{
-		double p = word.getP();
+		double p = word.P();
 		if(color_style == "warm") {
 			System.out.println("warm");
 			g.setColor(new Color(

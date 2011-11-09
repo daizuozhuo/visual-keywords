@@ -217,7 +217,7 @@ public class Window extends JFrame {
        	System.out.println("------------------ " + result.size() + " keywords found ------------------");
 		setMenubar();
 		pack();
-       	painter = new Painter_single(result, width, height, menuItem_update.getState(), wordle);
+       	painter = new Painter_multi(result, width, height, menuItem_update.getState(), wordle);
 	
    		JOptionPane.showMessageDialog(null, painter.paint(), "Message", 1/*, new ImageIcon(Toolkit.getDefaultToolkit().getImage("res/icon.jpg"))*/);
    		wordle.setImg(painter.getImg());
