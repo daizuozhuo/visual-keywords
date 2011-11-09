@@ -50,6 +50,8 @@ public class Window extends JFrame {
 		wordle = new Wordle(width, height);
 		setContentPane(wordle);
 		setResizable(false);
+		setMenubar();
+		pack();
 	}
 	
 	public void run() 
@@ -153,7 +155,7 @@ public class Window extends JFrame {
         // Analyse input
         try
         {
-			catcher.analyse("res/input.txt");
+			catcher.analyse("res/input1.txt");
     		System.out.println("Analysis Successful!");
 		} 
         catch (IOException e)
@@ -170,8 +172,7 @@ public class Window extends JFrame {
         
        	for (int i = 0 ; i < result.size(); i++) result.get(i).print();
        	System.out.println("------------------ " + result.size() + " keywords found ------------------");
-		setMenubar();
-		pack();
+
        	painter = new Painter_single(result, width, height, menuItem_update.getState(), wordle);
 	
    		JOptionPane.showMessageDialog(null, painter.paint(), "Message", 1/*, new ImageIcon(Toolkit.getDefaultToolkit().getImage("res/icon.jpg"))*/);
@@ -181,7 +182,7 @@ public class Window extends JFrame {
 	
 	private void start_multi()
 	{
-        Catcher catcher = new Catcher();
+        Catcher_single catcher = new Catcher();
         // Load library
         try
         {

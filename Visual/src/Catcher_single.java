@@ -7,11 +7,11 @@ import java.util.Collection;
 import java.util.Hashtable;
 
 
-public class Catcher {
+public class Catcher_single {
 	private Hashtable<String, String> library; // Hashtable for words in the library
 	private Hashtable<String, Word> result; // Hashtable for words found in the input file
 	
-	public Catcher()
+	public Catcher_single()
 	{
 		library = new Hashtable<String, String>();
 		result = new Hashtable<String, Word>();
