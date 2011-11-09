@@ -32,7 +32,7 @@ public class Window extends JFrame {
 	private JMenuItem menuItem_start_multi;
 	private JMenuItem menuItem_back;
 	private JMenuItem menuItem_save;
-	private JMenuItem menuItem_exit;http://music.google.com/music/listen#all_pl
+	private JMenuItem menuItem_exit;
 	private JRadioButtonMenuItem menuItem_warm;
 	private JCheckBoxMenuItem menuItem_update;
 	private Wordle wordle;
@@ -172,7 +172,51 @@ public class Window extends JFrame {
        	System.out.println("------------------ " + result.size() + " keywords found ------------------");
 		setMenubar();
 		pack();
-       	painter = new Painter(result, width, height, menuItem_update.getState(), wordle, Painter.Mode.single_file);
+       	painter = new Painter_single(result, width, height, menuItem_update.getState(), wordle);
+	
+   		JOptionPane.showMessageDialog(null, painter.paint(), "Message", 1/*, new ImageIcon(Toolkit.getDefaultToolkit().getImage("res/icon.jpg"))*/);
+   		wordle.setImg(painter.getImg());
+   		wordle.repaint();
+	}
+	
+	private void start_multi()
+	{
+        Catcher catcher = new Catcher();
+        // Load library
+        try
+        {
+			catcher.load_library();
+			System.out.println("Library Load Successful!"); 
+		} 
+        catch (IOException e) 
+        {
+    		System.out.println("Library Load Error!");
+			e.printStackTrace();
+        }
+        
+        // Analyse input
+        try
+        {
+			catcher.analyse("res/input.txt");
+    		System.out.println("Analysis Successful!");
+		} 
+        catch (IOException e)
+        {
+    		System.out.println("Analysis Error!");
+			e.printStackTrace();
+		}
+        
+        // Sort the words found
+        Collection<Word> c = catcher.get_values();  
+        result = new Vector<Word>(c);
+        //result =  (Word[]) c.toArray(new Word[c.size()]);
+        Collections.sort(result);
+        
+       	for (int i = 0 ; i < result.size(); i++) result.get(i).print();
+       	System.out.println("------------------ " + result.size() + " keywords found ------------------");
+		setMenubar();
+		pack();
+       	painter = new Painter_single(result, width, height, menuItem_update.getState(), wordle);
 	
    		JOptionPane.showMessageDialog(null, painter.paint(), "Message", 1/*, new ImageIcon(Toolkit.getDefaultToolkit().getImage("res/icon.jpg"))*/);
    		wordle.setImg(painter.getImg());
