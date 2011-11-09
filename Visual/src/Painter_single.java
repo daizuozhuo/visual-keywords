@@ -50,7 +50,8 @@ public class Painter_single implements Painter{
 		img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		p_cen = new Point(width / 2, height / 2);
 		min_size = new Point(0,0);
-		color_style="warm";
+		color_style="warm";	
+
 		//set shape
 		bound=new Bound("heart", width, height);
 		bound_shape=bound.get_shape();
@@ -248,7 +249,6 @@ public class Painter_single implements Painter{
 					 max( (position.x+position.y)/10>250 ? 250 : (position.x+position.y)/10 , 120 )
 					 ));
 		}
-		//g.setColor(new Color((int)(Math.random() * 15 + 20), (int)(Math.random() * 25 + 109), (int)(Math.random() * 45 + 180), 180));				
 	}
 			
 

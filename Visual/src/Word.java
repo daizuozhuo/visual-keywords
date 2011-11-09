@@ -9,6 +9,7 @@ public class Word implements Comparable<Word> {
     private int x; // x coordinate
     private int y; // y coordinate
     private Polygon bounds;
+    private double f1, f2;
    
     public Word(String str)
     {
@@ -19,6 +20,7 @@ public class Word implements Comparable<Word> {
         this.y = -1;
     }
 
+    public double getP() { return f1/f2; }
     public String getStr() {return str;}
     public int getCount() {return count;}
     public int getSize() {return size;}
