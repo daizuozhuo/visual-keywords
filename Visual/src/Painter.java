@@ -19,7 +19,9 @@ public class Painter {
 	private final static String fontfile = "res/font.ttf"; // Font
 	private BufferedImage img;
 	Graphics2D g;
-
+	public enum Mode{single_file, multi_file}; 
+    private Mode mode;
+    
 	private static Point p_cen;
 	private static final int max_num = 150;
 	private static final int font_min = 18;
@@ -40,12 +42,13 @@ public class Painter {
 	private boolean done;
 	
 	
-	public Painter(Vector<Word> result, int width, int height, boolean update, ImageObserver observer) 
+	public Painter(Vector<Word> result, int width, int height, boolean update, ImageObserver observer, Mode mode) 
 	{
 		this.width = width;
 		this.height = height;
 		this.update = update;
 		this.observer = observer;
+		this.mode = mode;
 	    done = false;
 		img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		p_cen = new Point(width / 2, height / 2);

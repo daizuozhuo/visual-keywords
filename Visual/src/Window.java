@@ -89,7 +89,7 @@ public class Window extends JFrame {
        	System.out.println("------------------ " + result.size() + " keywords found ------------------");
 		setMenubar();
 		pack();
-       	painter = new Painter(result, width, height, menuItem_update.getState(), wordle);
+       	painter = new Painter(result, width, height, menuItem_update.getState(), wordle, Painter.Mode.single_file);
 	}
 	
 	//set menu;
