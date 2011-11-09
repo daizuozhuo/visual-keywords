@@ -24,7 +24,7 @@ public class Painter_multi implements Painter{
 	private static Point p_cen;
 	private static final int max_num = 150;
 	private static final int font_min = 18;
-	private static final int font_max = 125;
+	private static final int font_max = 60;
 	private Bound bound;
 	private Shape bound_shape;
 	private String color_style;
@@ -100,7 +100,7 @@ public class Painter_multi implements Painter{
 	{
 		for (int i = 0; i < words.size(); i++)
 		{
-			if (words.get(i).X() == -1) continue;		
+			if (words.get(i).X() == -1) break;		
 			try   // Set the font
 			{
 				font = fontBase.deriveFont(Font.PLAIN, words.get(i).getSize());
@@ -235,7 +235,7 @@ public class Painter_multi implements Painter{
 			g.setColor(new Color(
 					/*red*/ (int)(p*255),
 					/*green*/ 0,
-					/*blue*/ (int)(1-p)*255
+					/*blue*/ (int)((1-p)*255)
 					));
 		}
 	}
@@ -247,18 +247,24 @@ public class Painter_multi implements Painter{
 		int str_X = bounds.width;
 		int str_Y = bounds.height;
 		str_Y = bounds.height;
-		int y= p_cen.y;
 		int x=(int)(p*width);
-		int k = 1; 
-		do
-		{	
-			if(isEmpty(x, y, str_X, str_Y, 0, i)) {
-				return new Point(x,y);
+		int l = 0;
+		while (x > 0 && x< width - str_X)
+		{		
+			int k = 0; 
+			int y= p_cen.y;
+			while (y > 0 && y < height - str_Y)
+			{	
+				if(isEmpty(x, y, str_X, str_Y, 0, i)) {
+					return new Point(x,y);
+				}
+				k++;
+				y += (k % 2 == 0 ? 1 : -1) * k * 3;
 			}
-			k++;
-			y += (k % 2 == 0 ? 1 : -1) * Math.pow(2, k);
 			System.out.println(x+" , "+y);
-		}	while (y > 0 && y < height);	
+			l++;
+			x += (l % 2 == 0 ? 1 : -1) * l * 3;
+		}
 		return null;
 	}	
 	
