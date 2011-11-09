@@ -17,6 +17,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JRadioButtonMenuItem;
 
 
 @SuppressWarnings("serial")
@@ -26,10 +27,12 @@ public class Window extends JFrame {
 	private JMenuBar menuBar;
 	private JMenu menuFile;
 	private JMenu menuPreference;
+	private JMenu menuColorStyle;
 	private JMenuItem menuItem_start;
 	private JMenuItem menuItem_back;
 	private JMenuItem menuItem_save;
 	private JMenuItem menuItem_exit;
+	private JRadioButtonMenuItem menuItem_warm;
 	private JCheckBoxMenuItem menuItem_update;
 	private Wordle wordle;
 	private Painter painter;
@@ -98,6 +101,7 @@ public class Window extends JFrame {
 		//Build the first menu.
 		menuFile = new JMenu("File");		
 		menuPreference = new JMenu("Preference");
+		menuColorStyle = new JMenu("Color Style");
 		menuBar.add(menuFile);
 		menuBar.add(menuPreference);
 
@@ -106,9 +110,17 @@ public class Window extends JFrame {
 		menuItem_start = new JMenuItem("Start",KeyEvent.VK_S);
 		menuItem_back = new JMenuItem("Set background image",KeyEvent.VK_B);
 		menuItem_save = new JMenuItem("Save Image",KeyEvent.VK_I);
-		menuItem_exit =new JMenuItem("Exit",KeyEvent.VK_E);
+		menuItem_exit = new JMenuItem("Exit",KeyEvent.VK_E);
 		menuItem_update = new JCheckBoxMenuItem("Real Time Update", true);
-
+		menuItem_warm = new JRadioButtonMenuItem("warmth style");
+		
+		menuItem_warm.setSelected(true);
+		menuItem_warm.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e)
+            {
+                painter.setColorStyle("warm");
+            }
+        });      
 		
 		menuItem_start.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e)
@@ -145,6 +157,8 @@ public class Window extends JFrame {
 		menuFile.add(menuItem_save);
 		menuFile.add(menuItem_exit);
 		menuPreference.add(menuItem_update);
+		menuColorStyle.add(menuItem_warm);
+		menuPreference.add(menuColorStyle);
 		this.setJMenuBar(menuBar);
 	}
 	
@@ -161,7 +175,7 @@ public class Window extends JFrame {
 	    int returnVal = chooser.showOpenDialog(this);
 	    if(returnVal == JFileChooser.APPROVE_OPTION)
 	    {
-	       System.out.println("You chose to open this file: " +
+	       System.out.println("You cho0se to open this file: " +
 	            chooser.getSelectedFile().getName());
 	       File file=chooser.getSelectedFile();
 	       try 
