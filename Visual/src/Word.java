@@ -43,16 +43,16 @@ public class Word implements Comparable<Word> {
     public int X() {return x;}
     public int Y() {return y;}
     public Polygon getBounds() {return bounds;}
-    public double P() { return ((double)count/total1) / (((double)count / total1) + ((double)count2 / total2)); }
+    public double P() {System.out.println(((double)count/total1) / (((double)count / total1) + ((double)count2 / total2))); return ((double)count/total1) / (((double)count / total1) + ((double)count2 / total2)); }
     public double N() {return (0.5 - Math.abs(0.5 - P())) * (count + count2);}
    
     public void print()
     {
-        System.out.println(str + " : " + count + " times");
+        System.out.println(str + " : " + (count + count2)+ " times");
     }
 
     public int compareTo(Word w) // Override function for Comparable
     {
-        return w.count - count;
+        return (int) (w.N() - N());
     }
 }

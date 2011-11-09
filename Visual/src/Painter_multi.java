@@ -131,8 +131,7 @@ public class Painter_multi implements Painter{
 			if (temp < font_min) temp = font_min; // Minimum size 
 			else if (temp > font_max) temp = font_max; // Maximum size
 			words.get(i).setSize(temp);
-		}
-		
+		}		
 	}
 	
 	
