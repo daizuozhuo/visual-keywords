@@ -252,18 +252,18 @@ public class Painter_multi implements Painter{
 	private Point searchSpace(Rectangle bounds, int sides, int i, double p)
 	{		
 		// The bounds of the string
-		int str_X;
-		int str_Y;
-		str_X = bounds.width;
+		int str_X = bounds.width;
+		int str_Y = bounds.height;
 		str_Y = bounds.height;
 		int loop=1;
-		int step=(int)(0.1*str_Y);
-		if(step<1)step=1;
 		int y=p_cen.y-loop;	
 		int x=(int)(p*width-loop);
+		
 		// The starting position of x and y
 		int init_Y = y;
 		int init_X = x;
+		
+		//search in the area of bound.
 		int left_bound=0;
 		int right_bound=0;
 		int up_bound=0;
@@ -271,13 +271,6 @@ public class Painter_multi implements Painter{
 		
 		do
 		{	
-			if(min_size.x!=0){
-				if(str_X>=min_size.x&&str_Y>=min_size.y)
-				{
-					break;
-				}
-				if(min_size.y==font_min)break;
-			}
 			if (isEmpty(x-str_X/2, y-str_Y/2, str_X, str_Y, sides, i))
 			{
 				return new Point(x-str_X/2, y-str_Y/2);
@@ -286,46 +279,44 @@ public class Painter_multi implements Painter{
 			right_bound=p_cen.x+loop;
 			low_bound=p_cen.y-loop;
 			up_bound=p_cen.y+loop;
-			if(low_bound<=str_Y/2)low_bound=step+str_Y/2;
+			//low and up bound cannot out of rectangle area.
+			if(low_bound<=str_Y/2)low_bound=1+str_Y/2;
 			if(up_bound >= height - str_Y / 2) up_bound = height - str_Y / 2;
+			
+			//search in the form of circle
 			if(x<=left_bound)
 			{
-				if(y>low_bound)y=y-step;
-				else x=x+step;
+				if(y>low_bound)y=y--;
+				else x++;
 			}
 			else if(x>=right_bound)
 			{ 
-				if(y<up_bound)y=y+step;
-				else x=x-step;
+				if(y<up_bound)y=y++;
+				else x--;
 			}
 			else
 			{
 				if(y<=low_bound)
 				{
-					x=x+step;
+					x++;
 				}else if(y>=up_bound)
 				{
-					x=x-step;
+					x--;
 				}else{
-					x=x+step;
+					x++;
 				}
 			}
 			
+			//back to the staring point, add loop and search again
 			if(x<=init_X&&y<=init_Y)
 			{
-				init_X=left_bound-step;
-				init_Y=low_bound-step;
-				if(init_Y<=str_Y/2)init_Y=step+str_Y/2;
-				loop=loop+step;
+				init_X=left_bound-1;
+				init_Y=low_bound-1;
+				if(init_Y<=str_Y/2)init_Y=1+str_Y/2;
+				loop=loop+1;
 			}
 			
 		}	while ((x < width - str_X / 2) || loop < 10);	
-		
-			if (min_size.x==0) min_size.x=str_X;
-			if (min_size.x>str_X) min_size.x=str_X;
-			if(min_size.y==0) min_size.y=str_Y;
-			if(min_size.y>str_Y) min_size.y=str_Y;
-			
 		return null;
 	}	
 	
