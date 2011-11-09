@@ -24,7 +24,7 @@ public class Painter_multi implements Painter{
 	private static Point p_cen;
 	private static final int max_num = 150;
 	private static final int font_min = 18;
-	private static final int font_max = 60;
+	private static final int font_max = 150;
 	private Bound bound;
 	private Shape bound_shape;
 	private String color_style;
@@ -86,7 +86,7 @@ public class Painter_multi implements Painter{
 		
 		for (int i = 0; i < max_num && i < words.size(); i++)
 		{	
-			if (paintStr(i, i > 5 ? 2 : 0) == 0) break;
+			if (paintStr(i, i > 5 ? 2 : 0) == 0) continue;
 			drawn ++;
 			System.out.println((i + 1 ) + " / " + words.size() + " done. Size: " + words.get(i).getSize());	
 		}		
@@ -124,16 +124,12 @@ public class Painter_multi implements Painter{
 	private void setSize() 
 	{
 		double max = 0; // The sum of all the keywords found
-		/*for (int i = 0; i < words.size(); i++) sum += words.get(i).N();
-		for (int i = 0; i < words.size(); i++) 
-		{
-			int temp = (int)words.get(i).N() * 130 / sum + 125 - i / 10 * 30; // Function to determine the font size
-			if (temp < font_min) temp = font_min; // Minimum size 
-			else if (temp > font_max) temp = font_max; // Maximum size
-			words.get(i).setSize(temp);
-		}*/
 		for (int i = 0; i < words.size(); i++) {
 			if(max < words.get(i).N()) max = words.get(i).N();
+		}
+		for (int i = 0; i <words.size(); i++) {
+			int temp = (int)(words.get(i).N()*font_max/max);
+			words.get(i).setSize(temp);
 		}
 		
 	}
@@ -274,7 +270,7 @@ public class Painter_multi implements Painter{
 	
 		for (int l = 0; l < n; l++)
 		{
-			if (words.get(l).getBounds().contains(x, y) || words.get(l).getBounds().contains(x + str_X, y + str_Y))
+			if (words.get(l).getBounds() != null && (words.get(l).getBounds().contains(x, y) || words.get(l).getBounds().contains(x + str_X, y + str_Y)))
 			{
 				return false;
 			}
