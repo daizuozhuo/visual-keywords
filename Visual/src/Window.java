@@ -28,10 +28,11 @@ public class Window extends JFrame {
 	private JMenu menuFile;
 	private JMenu menuPreference;
 	private JMenu menuColorStyle;
-	private JMenuItem menuItem_start;
+	private JMenuItem menuItem_start_single;
+	private JMenuItem menuItem_start_multi;
 	private JMenuItem menuItem_back;
 	private JMenuItem menuItem_save;
-	private JMenuItem menuItem_exit;
+	private JMenuItem menuItem_exit;http://music.google.com/music/listen#all_pl
 	private JRadioButtonMenuItem menuItem_warm;
 	private JCheckBoxMenuItem menuItem_update;
 	private Wordle wordle;
@@ -53,7 +54,89 @@ public class Window extends JFrame {
 	
 	public void run() 
 	{
+	}
+	
+	//set menu;
+	private void setMenubar()
+	{
+		//Create the menu bar.
+		menuBar = new JMenuBar();
 
+		//Build the first menu.
+		menuFile = new JMenu("File");		
+		menuPreference = new JMenu("Preference");
+		menuColorStyle = new JMenu("Color Style");
+		menuBar.add(menuFile);
+		menuBar.add(menuPreference);
+
+		//a group of JMenuItems
+		
+		menuItem_start_single = new JMenuItem("Start single-file mode",KeyEvent.VK_S);
+		menuItem_start_multi = new JMenuItem("Start muiti-file mode",KeyEvent.VK_M);
+		menuItem_back = new JMenuItem("Set background image",KeyEvent.VK_B);
+		menuItem_save = new JMenuItem("Save Image",KeyEvent.VK_I);
+		menuItem_exit = new JMenuItem("Exit",KeyEvent.VK_E);
+		menuItem_update = new JCheckBoxMenuItem("Real Time Update", true);
+		menuItem_warm = new JRadioButtonMenuItem("warmth style");
+		
+		menuItem_warm.setSelected(true);
+		menuItem_warm.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e)
+            {
+                painter.setColorStyle("warm");
+            }
+        });      
+		
+		menuItem_start_single.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e)
+            {
+                start_single();
+            }
+        });   
+		
+		menuItem_start_multi.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e)
+            {
+                start_multi();
+            }
+        }); 
+		
+		menuItem_back.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e)
+            {
+                choose_backimg();
+            }
+        });    
+		
+		menuItem_save.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e)
+            {
+                saveImage();
+            }
+        });   
+		
+		menuItem_exit.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e)
+            {
+                System.exit(0);
+            }
+        });    
+		
+		
+		
+		menuFile.add(menuItem_start_single);
+		menuFile.add(menuItem_start_multi);
+		menuFile.add(menuItem_back);
+		menuFile.add(menuItem_save);
+		menuFile.add(menuItem_exit);
+		menuPreference.add(menuItem_update);
+		menuColorStyle.add(menuItem_warm);
+		menuPreference.add(menuColorStyle);
+		this.setJMenuBar(menuBar);
+	}
+	
+	private void start_single()
+	{
         Catcher catcher = new Catcher();
         // Load library
         try
@@ -90,80 +173,7 @@ public class Window extends JFrame {
 		setMenubar();
 		pack();
        	painter = new Painter(result, width, height, menuItem_update.getState(), wordle, Painter.Mode.single_file);
-	}
 	
-	//set menu;
-	private void setMenubar()
-	{
-		//Create the menu bar.
-		menuBar = new JMenuBar();
-
-		//Build the first menu.
-		menuFile = new JMenu("File");		
-		menuPreference = new JMenu("Preference");
-		menuColorStyle = new JMenu("Color Style");
-		menuBar.add(menuFile);
-		menuBar.add(menuPreference);
-
-		//a group of JMenuItems
-		
-		menuItem_start = new JMenuItem("Start",KeyEvent.VK_S);
-		menuItem_back = new JMenuItem("Set background image",KeyEvent.VK_B);
-		menuItem_save = new JMenuItem("Save Image",KeyEvent.VK_I);
-		menuItem_exit = new JMenuItem("Exit",KeyEvent.VK_E);
-		menuItem_update = new JCheckBoxMenuItem("Real Time Update", true);
-		menuItem_warm = new JRadioButtonMenuItem("warmth style");
-		
-		menuItem_warm.setSelected(true);
-		menuItem_warm.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e)
-            {
-                painter.setColorStyle("warm");
-            }
-        });      
-		
-		menuItem_start.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e)
-            {
-                start();
-            }
-        });      
-		
-		menuItem_back.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e)
-            {
-                choose_backimg();
-            }
-        });    
-		
-		menuItem_save.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e)
-            {
-                saveImage();
-            }
-        });   
-		
-		menuItem_exit.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e)
-            {
-                System.exit(0);
-            }
-        });    
-		
-		
-		
-		menuFile.add(menuItem_start);
-		menuFile.add(menuItem_back);
-		menuFile.add(menuItem_save);
-		menuFile.add(menuItem_exit);
-		menuPreference.add(menuItem_update);
-		menuColorStyle.add(menuItem_warm);
-		menuPreference.add(menuColorStyle);
-		this.setJMenuBar(menuBar);
-	}
-	
-	private void start()
-	{
    		JOptionPane.showMessageDialog(null, painter.paint(), "Message", 1/*, new ImageIcon(Toolkit.getDefaultToolkit().getImage("res/icon.jpg"))*/);
    		wordle.setImg(painter.getImg());
    		wordle.repaint();
