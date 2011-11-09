@@ -5,30 +5,25 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 
 public class Bound {
-	public enum BoundType { RECT,CIRCLE,HEART,STAR,ARC };
-	private BoundType type;
+	private String type;
 	private int width;
 	private int height;
 	private Shape shape;
 	
-	public Bound(int t, int w, int h)
+	public Bound(String str, int w, int h)
 	{
 		width=w;
 		height=h;
-		if ( t==1 ) {
-			type=BoundType.CIRCLE;
+		type=str;
+		if ( type == "circle" ) {
 			create_circle();
-		} else if ( t==2 ) {
-			type=BoundType.HEART;
+		} else if ( type == "heart" ) {
 			create_heart();
-		} else if ( t==3 ) {
-			type=BoundType.STAR;
+		} else if ( type == "star" ) {
 			create_star();
-		} else if (t==4 ) {
-			type=BoundType.ARC;
+		} else if (type == "arc" ) {
 			create_arc();
 		} else {
-			type=BoundType.RECT;
 			create_rect();
 		}
 	}
@@ -72,11 +67,6 @@ public class Bound {
 		ax.rotate(Math.PI/4,r1,r2);
 		
 		shape=ax.createTransformedShape(shape);
-		/*AffineTransform rat = new AffineTransform();
-	      rat.setToTranslation(100, 0);
-	      rat.rotate(Math.PI / 6);
-	      g2.transform(rat);
-		*/
 	}
 	
 	public void create_star()
