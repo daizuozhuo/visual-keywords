@@ -126,10 +126,10 @@ public class Painter_multi implements Painter{
 	private void setSize() 
 	{
 		int sum = 0; // The sum of all the keywords found
-		for (int i = 0; i < words.size(); i++) sum += words.get(i).getCount();
+		for (int i = 0; i < words.size(); i++) sum += words.get(i).getTotal();
 		for (int i = 0; i < words.size(); i++) 
 		{
-			int temp = words.get(i).getCount() * 130 / sum + 125 - i / 10 * 30; // Function to determine the font size
+			int temp = words.get(i).getTotal() * 130 / sum + 125 - i / 10 * 30; // Function to determine the font size
 			if (temp < font_min) temp = font_min; // Minimum size 
 			else if (temp > font_max) temp = font_max; // Maximum size
 			words.get(i).setSize(temp);

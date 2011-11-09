@@ -21,8 +21,11 @@ public class Word implements Comparable<Word> {
         this.x = -1;
         this.y = -1;
     }
-
-    public double getP() { return f1/f2; }
+    public int getTotal() { 
+    	double i = 0.5;s
+    	return getCount() + getCount2();
+    	};
+    public double getP() { return f1/(f2 + f2); }
     public String getStr() {return str;}
     public int getCount() {return count;}
     public int getCount2() {return count2;}
