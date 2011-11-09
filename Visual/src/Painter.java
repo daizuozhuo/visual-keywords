@@ -25,7 +25,7 @@ public class Painter {
 	private static Point p_cen;
 	private static final int max_num = 150;
 	private static final int font_min = 18;
-	private static final int font_max = 125;
+	private static final int font_max = 100;
 	private static Point min_size;
 	private Bound bound;
 	private Shape bound_shape;
@@ -254,7 +254,6 @@ public class Painter {
 		//g.setColor(new Color((int)(Math.random() * 15 + 20), (int)(Math.random() * 25 + 109), (int)(Math.random() * 45 + 180), 180));				
 	}
 			
-
 	private Point searchSpace(Rectangle bounds, int sides, int i)
 	{		
 		// The bounds of the string
